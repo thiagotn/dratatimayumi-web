@@ -231,11 +231,16 @@ O site é conteinerizado (nginx servindo os arquivos estáticos) e publicado no 
 `deployment.yml`, `service.yml` (`dratatimayumi-service:80` → container `:8080`), `ingress.yml`
 (`.com.br`, já existia) e `ingress-com.yml` (`.com`, opcional — exige zona `.com` na Cloudflare).
 
-**Processo (rollout manual — o runner de nuvem não alcança o cluster privado):**
+**Processo (rollout disparado da máquina local — o runner de nuvem não alcança o cluster privado):**
 ```
 Push → GitHub Actions → build → push GHCR (sha + latest)
-       → (no node) kubectl set image deploy/dratatimayumi web=...:sha-<sha> → rollout
+       → (máquina local) ansible-playbook deploy-app.yml -e app=dratatimayumi → rollout
 ```
+- **Recomendado:** no repo `../homelab`, `ansible-playbook ansible/playbooks/deploy-app.yml -e app=dratatimayumi`
+  (resolve o SHA do HEAD de `main`, espera a imagem no GHCR, faz `set image` + `rollout` + `/healthz`).
+  Fixar versão/rollback: `-e image_tag=sha-<sha>`.
+- **Fallback on-node:** `./scripts/deploy-dratatimayumi.sh sha-<sha>` (via SSH no node).
+
 Detalhes e checklist completo: ver o plano em `~/.claude/plans/` e o `README.md` de `../homelab`.
 
 > ⚠️ **Domínio nos arquivos de SEO:** `index.html` (og/twitter/canonical/JSON-LD), `robots.txt` e
