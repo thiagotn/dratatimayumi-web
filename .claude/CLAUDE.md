@@ -205,19 +205,41 @@ Cada serviço tem:
 
 ---
 
-## 🚀 Deploy com GitHub Pages
+## 🚀 Deploy
 
-O deploy é automatizado via GitHub Actions (`.github/workflows/deploy.yml`):
+O site tem **dois caminhos de publicação** (em transição do FTP para o Kubernetes):
 
-1. **Não modificar** arquivos de workflow
-2. Deploy ocorre automaticamente ao fazer push para `main`
-3. Site acessível em: **https://dratatimayumi.com** (domínio registrado na Hostinger)
-4. GitHub Pages serve a branch `gh-pages` (criada automaticamente pelo workflow)
+### 1. FTP / Hostinger (legado — ainda ativo)
+- Workflow `.github/workflows/deploy.yml`: faz `lftp mirror` do repositório para a Hostinger a cada push em `main`.
+- Domínio de produção real: **dratatimayumi.com.br** (caminho FTP `domains/dratatimayumi.com.br/public_html/`).
+- Mantido durante a migração; será desativado depois que o k8s estiver validado em produção.
 
-**Processo:**
+### 2. Container + Kubernetes (homelab k3s — novo)
+O site é conteinerizado (nginx servindo os arquivos estáticos) e publicado no homelab k3s
+(repo `../homelab`). Domínio canônico: **dratatimayumi.com.br** (`.com` faz 301 → `.com.br`).
+
+**Arquivos desta conteinerização (neste repo):**
+- `Dockerfile` — nginx:stable-alpine, non-root (uid 101), porta 8080, `/healthz`.
+- `nginx.conf` — gzip, cache (`expires`), headers de segurança e redirect `.com` → `.com.br`.
+  - ⚠️ Headers de segurança ficam no nível do `server`. **Não** adicionar `add_header` dentro de
+    um `location` (cancela a herança dos headers do server) — para cache use a diretiva `expires`.
+- `.dockerignore` — exclui ~8MB de logos não usados e cruft do repo (não excluir `nginx.conf`).
+- `.github/workflows/build-image.yml` — builda e publica a imagem no GHCR
+  (`ghcr.io/<owner>/dratatimayumi-web`, tags `sha-<git-sha>` + `latest`) a cada push em `main`.
+
+**Resources k8s** (ficam no repo `../homelab`, em `helm/apps/dratatimayumi/`):
+`deployment.yml`, `service.yml` (`dratatimayumi-service:80` → container `:8080`), `ingress.yml`
+(`.com.br`, já existia) e `ingress-com.yml` (`.com`, opcional — exige zona `.com` na Cloudflare).
+
+**Processo (rollout manual — o runner de nuvem não alcança o cluster privado):**
 ```
-Push → GitHub Actions → Build dist/ → Deploy gh-pages → Hostinger DNS → Site Live
+Push → GitHub Actions → build → push GHCR (sha + latest)
+       → (no node) kubectl set image deploy/dratatimayumi web=...:sha-<sha> → rollout
 ```
+Detalhes e checklist completo: ver o plano em `~/.claude/plans/` e o `README.md` de `../homelab`.
+
+> ⚠️ **Domínio nos arquivos de SEO:** `index.html` (og/twitter/canonical/JSON-LD), `robots.txt` e
+> `sitemap.xml` usam **dratatimayumi.com.br** (canônico). Manter consistente ao editar.
 
 ---
 
@@ -316,6 +338,6 @@ Garantir que o site mantenha:
 
 ---
 
-**Última atualização:** 2025-11-30
+**Última atualização:** 2026-06-24
 
 **Instrução Adicional:** Sempre que um novo pedido de mudança for feito, o Claude deve revisar e atualizar estas instruções, se necessário, para garantir que estejam sempre alinhadas com as expectativas do usuário e o estado atual do projeto.

@@ -1,0 +1,17 @@
+.git
+.github
+.gemini
+.claude
+.gitignore
+README.md
+*.md
+LICENSE
+CNAME
+*.sh
+Dockerfile
+.dockerignore
+# Logos grandes não referenciados pelo index.html (~8MB)
+assets/logo-transparent.png
+assets/logo-no-text.png
+assets/logo-no-text-transparent.png
+assets/logo-bigger-no-text-transparent.png
