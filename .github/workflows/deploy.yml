@@ -1,9 +1,9 @@
 name: Deploy via FTP
 
+# Desativado o gatilho automático: o deploy de produção migrou para o k3s do homelab
+# (ver build-image.yml + ../homelab). Mantido como fallback MANUAL — rode pela aba
+# Actions ("Run workflow") se precisar publicar na Hostinger via FTP.
 on:
-  push:
-    branches:
-      - main
   workflow_dispatch:
 
 jobs:
