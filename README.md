@@ -85,34 +85,34 @@ O site pode incluir funcionalidades como:
 
 ## 🚀 Publicação (Deploy)
 
-O site é servido como um **Single-Page Application (SPA)** e publicado via **SFTP** através de execução manual do workflow do GitHub Actions.
+O site é **conteinerizado** (nginx servindo os arquivos estáticos) e publicado no **homelab k3s**
+(repo `../homelab`). Os domínios **dratatimayumi.com.br** (canônico) e **dratatimayumi.com**
+(301 → `.com.br`) estão no ar pelo cluster, com TLS Let's Encrypt via cert-manager.
 
-O domínio principal é **[https://dratatimayumi.com](https://dratatimayumi.com)**, registrado e gerenciado através da **Hostinger**.
+> O deploy antigo via **SFTP/Hostinger** (`.github/workflows/deploy.yml`) está **legado** — o
+> gatilho automático foi desativado (só execução manual) e será removido após o decomissionamento
+> da Hostinger. O fluxo atual é o de container + k3s descrito abaixo.
 
-### Configuração do Deploy
+### Fluxo atual (container + GHCR + k3s)
 
-O processo de deploy é definido no workflow do GitHub Actions em `.github/workflows/deploy.yml`. Ele utiliza SFTP para enviar os arquivos diretamente para o servidor de hospedagem.
+1. **Build da imagem (CI):** a cada push em `main`, o workflow `.github/workflows/build-image.yml`
+   builda e publica a imagem no GHCR — `ghcr.io/thiagotn/dratatimayumi-web` (package público),
+   tags `sha-<git-sha>` + `latest`.
+2. **Rollout (manual, da máquina local):** o runner de nuvem **não alcança o cluster privado**,
+   então o rollout é disparado de fora. No repo `../homelab`:
+   ```bash
+   ansible-playbook ansible/playbooks/deploy-app.yml -e app=dratatimayumi          # última versão de main
+   ansible-playbook ansible/playbooks/deploy-app.yml -e app=dratatimayumi -e image_tag=sha-<sha>   # versão fixa / rollback
+   ```
+   Fallback on-node (via SSH): `./scripts/deploy-dratatimayumi.sh sha-<git-sha>`.
 
-#### Secrets Necessários
+### Arquivos da conteinerização (neste repo)
 
-Para que o deploy funcione corretamente, é necessário configurar os seguintes secrets no repositório do GitHub (Settings → Secrets and variables → Actions):
+-   **`Dockerfile`** — `nginx:stable-alpine`, non-root (uid 101), porta 8080, `/healthz`.
+-   **`nginx.conf`** — gzip, cache (`expires`), headers de segurança e redirect `.com → .com.br`.
+-   **`.dockerignore`** — exclui assets não usados e cruft do repo.
+-   **`.github/workflows/build-image.yml`** — build + push da imagem no GHCR.
 
--   **`SFTP_SERVER`**: Endereço do servidor SFTP da Hostinger (geralmente algo como `ssh.hostinger.com` ou similar)
--   **`SFTP_USERNAME`**: Nome de usuário SFTP (geralmente o mesmo do cPanel)
--   **`SFTP_PASSWORD`**: Senha do usuário SFTP
--   **`SFTP_REMOTE_PATH`**: Diretório de destino no servidor (ex: `/public_html/` ou `/domains/dratatimayumi.com/public_html/`)
-
-#### Processo de Deploy
-
-Para executar o deploy manualmente:
-1.  Acesse a aba **Actions** no repositório do GitHub
-2.  Selecione o workflow **Deploy via SFTP**
-3.  Clique no botão **Run workflow**
-4.  Escolha a branch desejada (geralmente `main`)
-5.  Clique em **Run workflow** para confirmar
-
-O workflow executa os seguintes passos:
-1.  Faz checkout do repositório
-2.  Envia todos os arquivos do projeto para o servidor via SFTP
-
-**Observação:** Os arquivos são enviados diretamente do repositório para o servidor, sem necessidade de diretório intermediário.
+Os manifests k8s (`deployment.yml`, `service.yml`, `ingress.yml`, `ingress-com.yml`) ficam no repo
+`../homelab` em `helm/apps/dratatimayumi/`. Detalhes completos: `.claude/CLAUDE.md` (seção Deploy)
+e o `README.md` do homelab.
