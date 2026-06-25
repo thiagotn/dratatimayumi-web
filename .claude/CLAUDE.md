@@ -229,7 +229,11 @@ O site é conteinerizado (nginx servindo os arquivos estáticos) e publicado no 
 
 **Resources k8s** (ficam no repo `../homelab`, em `helm/apps/dratatimayumi/`):
 `deployment.yml`, `service.yml` (`dratatimayumi-service:80` → container `:8080`), `ingress.yml`
-(`.com.br`, já existia) e `ingress-com.yml` (`.com`, opcional — exige zona `.com` na Cloudflare).
+(`.com.br`) e `ingress-com.yml` (`.com`). **Ambos os domínios estão no ar no k3s** (desde
+2026-06-25): a zona `dratatimayumi.com` foi migrada para a Cloudflare, o cert TLS
+`dratatimayumi-com-tls` foi emitido (DNS-01) e o `A` do `.com` aponta para o IP de casa via
+favonia (`DOMAINS="dratatimayumi.com.br,dratatimayumi.com"`). O `.com` (+ `www`) faz 301 → `.com.br`
+pelo nginx. Na zona `.com`, o `AAAA` legado foi removido e o `CNAME www` aponta para a raiz.
 
 **Processo (rollout disparado da máquina local — o runner de nuvem não alcança o cluster privado):**
 ```
@@ -343,6 +347,6 @@ Garantir que o site mantenha:
 
 ---
 
-**Última atualização:** 2026-06-24
+**Última atualização:** 2026-06-25
 
 **Instrução Adicional:** Sempre que um novo pedido de mudança for feito, o Claude deve revisar e atualizar estas instruções, se necessário, para garantir que estejam sempre alinhadas com as expectativas do usuário e o estado atual do projeto.
