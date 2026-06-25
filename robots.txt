@@ -1,8 +1,8 @@
-# robots.txt para dratatimayumi.com
+# robots.txt para dratatimayumi.com.br
 # Permitir que todos os motores de busca indexem todo o conteúdo
 
 User-agent: *
 Allow: /
 
 # Sitemap
-Sitemap: https://dratatimayumi.com/sitemap.xml
+Sitemap: https://dratatimayumi.com.br/sitemap.xml
