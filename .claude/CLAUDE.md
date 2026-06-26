@@ -9,7 +9,8 @@ O projeto segue a seguinte organização de diretórios e arquivos:
 
 ```
 /
-├── index.html
+├── index.html            (página única do redesign)
+├── faq.html              (Dúvidas Frequentes + formas de pagamento + endereço)
 ├── /assets
 │   ├── /portfolio (imagens de trabalhos realizados)
 │   └── imagens do site (JPG, PNG, SVG, WebP)
@@ -21,6 +22,12 @@ O projeto segue a seguinte organização de diretórios e arquivos:
     └── /workflows (CI/CD)
 ```
 
+> **Redesign (2026-06-26):** o site foi repaginado de "rose gold" para uma direção
+> **editorial de luxo discreto** (creme quente + dourado de acento + quase-preto). É **responsivo**:
+> mobile-first em coluna central de `max-width:464px` e, a partir de **≥1024px (desktop)**, layout
+> full-width em colunas largas (ver Responsividade). Destaque: **comparador Antes & Depois arrastável**.
+> A FAQ saiu da home e virou a página separada `faq.html` (que também concentra pagamentos e endereço).
+
 - **HTML** → apenas marcações e estrutura do conteúdo.
 - **TailwindCSS via CDN** → estilização aplicada via classes utilitárias e customizações inline quando necessário.
 - **JavaScript inline** → funcionalidades interativas dentro do próprio `index.html` (funções simples no `<script>`).
@@ -29,14 +36,16 @@ O projeto segue a seguinte organização de diretórios e arquivos:
 ---
 
 ## 🧭 Estrutura de Navegação
-O site contém os seguintes itens no menu:
+A nav (pills horizontais com scroll) contém:
 - **Início** (`#inicio`)
-- **Serviços** (`#servicos`)
-- **Portfólio** (`#portfolio`)
+- **Antes & Depois** (`#antes-depois`)
+- **Procedimentos** (`#procedimentos`)
 - **Sobre** (`#sobre`)
 - **Contato** (`#contato`)
+- **Dúvidas** → `faq.html` (página separada, não é âncora)
 
-Cada item direciona para sua respectiva seção dentro da página `index.html` utilizando âncoras internas.
+Os itens de âncora rolam para suas seções em `index.html`; "Dúvidas" abre `faq.html`.
+A `faq.html` tem header próprio com link **← Início** de volta para `index.html#inicio`.
 
 ---
 
@@ -45,53 +54,58 @@ Cada item direciona para sua respectiva seção dentro da página `index.html` u
 ### ⚠️ Configuração Centralizada
 O número de WhatsApp e a mensagem padrão estão centralizados em um único ponto do código JavaScript para facilitar manutenção futura.
 
-Localização: `index.html` (seção `<script>`)
+Localização: `index.html` e `faq.html` (seção `<script>`). **Manter os dois iguais.**
 ```javascript
 const WHATSAPP_CONFIG = {
   number: "5511945575694",
-  defaultMessage: "Olá! Gostaria de agendar um horário.",
+  defaultMessage: "Olá! Gostaria de agendar uma avaliação.",
 };
+
+// Instagram também centralizado (só no index.html):
+const INSTAGRAM_CONFIG = { handle: "dra.tatimayumi" };
 ```
 
 **Regras:**
-- **NUNCA** altere links de WhatsApp manualmente no HTML
-- **SEMPRE** altere apenas o objeto `WHATSAPP_CONFIG`
-- Todos os links são atualizados automaticamente via JavaScript
-- O formato do link gerado é: `https://wa.me/{number}?text={message}`
+- **NUNCA** altere links de WhatsApp/Instagram manualmente no HTML
+- **SEMPRE** altere apenas `WHATSAPP_CONFIG` / `INSTAGRAM_CONFIG`
+- Os botões de WhatsApp usam `href="#"` como placeholder; `updateWhatsAppLinks()` os reescreve no `DOMContentLoaded`. Mensagem específica por botão via atributo `data-wa-message`.
+- Instagram: `updateInstagramLinks()` reescreve `a[href*="instagram.com"]` e o label `[data-ig-label]`.
+- Formato do link gerado: `https://wa.me/{number}?text={message}`
 
 ### Onde o WhatsApp aparece:
-- Menu desktop (botão "Agende já")
-- Seção Hero (botão "Agendar Consulta")
-- Seção Portfólio (botão "Quero meu resultado")
-- Seção Contato (botão "Fale Conosco pelo WhatsApp")
-- Botão flutuante fixo (canto inferior direito)
+- Header (pill "Agendar")
+- Hero (botão "Agendar pelo WhatsApp")
+- Procedimentos (link "Agendar avaliação →" em cada card, com `data-wa-message` próprio)
+- Contato (item "WhatsApp" + botão "Falar no WhatsApp")
+- Barra fixa de CTA (rodapé mobile)
+- `faq.html` (botão "Falar no WhatsApp")
+
+### Onde o Instagram aparece (`@dra.tatimayumi`):
+- Hero (botão "Instagram"), Contato (item Instagram) e barra fixa de CTA (ícone)
 
 ---
 
-## 🎨 Identidade Visual
+## 🎨 Identidade Visual (redesign 2026-06-26)
 
-### Paleta de Cores
-- **Rose Gold**: `#b76e79` (cor principal)
-- **Rose Gold Hover**: `#a35d68`
-- **Soft Pink**: `#fff5f7` (backgrounds suaves)
-- **Texto**: `#1f2937` (gray-800)
-- **Texto Secundário**: `#4b5563` (gray-600)
+Direção: **editorial de luxo discreto** — creme quente, dourado como acento (nunca dominante),
+quase-preto como tinta. Evitar voltar ao rosa antigo.
+
+### Paleta de Cores (tokens CSS em `:root`)
+- `--page-bg #e6dacb` (moldura) · `--surface #faf5ee` (coluna) · `--surface-2 #f3ebe0`
+- `--ink #2a251f` (texto/fundos escuros) · `--ink-2 #221e19` (footer)
+- `--gold #c2a35f` · `--gold-deep #a8884e` (acento sobre claro) · `--gold-light #e7c98a` (sobre escuro)
+- `--text-muted #6f6457` · `--cream #f7f0e6` (texto sobre escuro)
 
 ### Tipografia
-- **Títulos**: "Playfair Display", serif (elegante, serifada)
-- **Texto Geral**: "Poppins", sans-serif (limpa, legível)
-- Ambas importadas via Google Fonts
+- **Títulos/display**: "Cormorant Garamond", serif (itálico para ênfase, ex.: *essência*)
+- **Texto/UI**: "Manrope", sans-serif
+- Ambas via Google Fonts. `eyebrow` = Manrope 600, 11px, `letter-spacing:.24em`, uppercase, gold-deep.
 
-### Classes Customizadas
-```css
-.rose-gold         /* Cor de texto rose gold */
-.rose-gold-bg      /* Background rose gold */
-.soft-pink-bg      /* Background rosa suave */
-.hover-rose        /* Hover com tom mais escuro */
-.hover-lift        /* Efeito de elevação ao hover */
-.elegant-border    /* Borda sutil rose gold */
-.decorative-line   /* Linha decorativa com gradiente */
-```
+### Estilo
+- O redesign usa **CSS próprio** (bloco `<style>` com os tokens acima + classes semânticas:
+  `.page`, `.site-header`, `.hero`, `.trust`, `.cmp-*` (comparador), `.proc-card`, `.contato`,
+  `.cta-bar`, etc.). As classes antigas `.rose-gold*`/`.soft-pink-bg` **não existem mais**.
+- Tailwind CDN continua carregado por compatibilidade, mas o design é feito no CSS próprio.
 
 ---
 
@@ -129,79 +143,44 @@ const WHATSAPP_CONFIG = {
 
 ## 📋 Seções do Site
 
-### 1. Hero Section
-- Logo centralizado
-- Título principal "Dra. Tati Mayumi"
-- Subtítulo "Estética Avançada"
-- Descrição breve do serviço
-- CTA: "Agendar Consulta" (WhatsApp)
+### `index.html`
+1. **Header sticky** — logo "Dra. Tati Mayumi" + sub "Estética Avançada", pill "Agendar" (WhatsApp), nav de pills (`#inicio · #antes-depois · #procedimentos · #sobre · #contato · Dúvidas→faq.html`).
+2. **Hero** (`#inicio`) — retrato full-bleed + overlay + H1 "Harmonia que respeita a sua *essência*" + botões WhatsApp e Instagram. *(imagem do hero é provisória — TODO: retrato real da Dra.)*
+3. **Faixa de confiança** — 3 métricas: "10+ Anos de prática", "+2k Atendimentos" *(TODO: confirmar número real)*, "100% Personalizado".
+4. **Antes & Depois** (`#antes-depois`) — **comparador arrastável** (peça central). Hoje só **Lábios** (par `assets/preenchimento-labial-{antes,depois}.jpeg`). A pill **Botox** está oculta até existir um par antes/depois real e alinhado.
+5. **Procedimentos** (`#procedimentos`) — cards de Preenchimento Labial e Toxina Botulínica (Botox), cada um com link "Agendar avaliação →".
+6. **Sobre** (`#sobre`) — retrato + bio + chips. *(sem CRM — a profissional não tem registro de conselho no material atual; se houver, re-adicionar.)*
+7. **Contato** (`#contato`) — itens WhatsApp `(11) 94557-5694`, Instagram `@dra.tatimayumi`, Atendimento `Seg–Sex 9h–18h`; botão "Falar no WhatsApp" + link para `faq.html`.
+8. **Footer** + **barra fixa de CTA** (WhatsApp + Instagram), respeitando `env(safe-area-inset-bottom)`.
 
-### 2. Serviços
-**Procedimentos oferecidos:**
-- **Botox**: Suavização de rugas e linhas de expressão
-- **Preenchimento Labial**: Aumento e modelagem com ácido hialurônico
+### `faq.html` (página separada)
+- **FAQ** (accordion): 7 perguntas de Botox + 8 de Preenchimento Labial (`FAQPage` JSON-LD aqui).
+- **Formas de Pagamento**: crédito/débito (parcelamento), PIX, logos Visa/Mastercard.
+- **Endereço**: Rua Catiguá, 159 - Tatuapé, SP, 03065-030 + link Google Maps.
 
-Cada serviço tem:
-- Ícone SVG
-- Título
-- Descrição
-- 3 benefícios principais
-
-### 3. Portfólio
-- Grid 2 colunas (desktop) / 1 coluna (mobile)
-- Imagens de antes/depois
-- Aspecto quadrado (1:1)
-- Título do procedimento
-- Descrição breve
-- Disclaimer: "*Resultados podem variar de acordo com cada pessoa"
-- CTA: "Quero meu resultado"
-
-### 4. Sobre
-- Título: "Por que nos escolher?"
-- Texto institucional
-- Foto da Dra. Tati em ação (circular)
-- Badge: "10+ Anos" de experiência
-- Estatísticas:
-  - 10+ Anos de Experiência na Área da Saúde
-  - 100% Segurança e Qualidade
-
-### 5. Contato
-- **Endereço**: Rua Catiguá, 159 - Tatuapé, São Paulo, SP - CEP 03065-030
-- Link para Google Maps
-- **Formas de Pagamento**:
-  - Cartão de crédito e débito (parcelamento disponível)
-  - PIX aceito
-  - Logos: Visa, Mastercard
-- CTA: "Fale Conosco pelo WhatsApp"
-
-### 6. Footer
-- Copyright: "© 2025 Dra. Tati Mayumi. Todos os direitos reservados."
-
-### 7. Botão WhatsApp Flutuante
-- Fixo no canto inferior direito
-- Ícone do WhatsApp
-- Verde característico: `#25d366`
-- Efeito de escala ao hover
+> Os schemas JSON-LD ficam: `MedicalBusiness` no `index.html`, `FAQPage` no `faq.html`.
 
 ---
 
 ## 🔧 Funcionalidades Implementadas
 
-### Menu Mobile
-- Toggle via função `toggleMenu()`
-- Exibe/oculta menu com classe `.hidden`
-- Menu hambúrguer (3 linhas)
+### Comparador Antes & Depois (`index.html`)
+- `initComparator()` — divisória arrastável via **Pointer Events** (mouse + toque, `touch-action:none`).
+- Estado `pos` (clamp 2–98); aplica `clip-path: inset(0 0 0 {pos}%)` na camada DEPOIS e move a divisória. Estrutura data-driven (`[data-cmp-frame|after|divider]`) — basta adicionar o par de Botox para reativar a 2ª pill.
 
-### WhatsApp Automático
-- Sistema de atualização automática de links
-- Função `updateWhatsAppLinks()` executada no `DOMContentLoaded`
-- Todos os links `a[href*="wa.me"]` são atualizados dinamicamente
+### WhatsApp / Instagram automáticos
+- `updateWhatsAppLinks()` e `updateInstagramLinks()` no `DOMContentLoaded` (ver seção WhatsApp acima).
+
+### FAQ accordion (`faq.html`)
+- `toggleFAQ(btn)` — abre/fecha via `max-height` + `aria-expanded` (ícone "+" gira para "×").
 
 ### Responsividade
-- Mobile-first approach
-- Breakpoints: `sm:`, `md:`, `lg:`
-- Menu mobile para telas < 768px
-- Grid adaptativo (1 coluna → 2 colunas)
+Site **responsivo num único documento** (mobile-first + um bloco `@media (min-width:1024px)` no `<style>`):
+- **Mobile (<1024px)**: coluna central `max-width:464px`; header em 2 linhas (brand+pill, depois nav de pills com scroll); hero full-bleed com texto sobreposto; **barra fixa de CTA** no rodapé. Tablets (768–1023px) seguem o layout mobile.
+- **Desktop (≥1024px)**: full-width, seções com inner `max-width:1100–1200px`. Header em **linha única** (brand · links inline · pill "Agendar"). **Hero 2 colunas** (texto sobre creme | imagem). Antes & Depois lado a lado (texto | comparador 460px). Procedimentos em **grid 2 col**; Sobre e Contato em 2 colunas (Contato com **card** à direita). Footer em linha. A barra fixa some e entra um **botão flutuante (FAB)** redondo de WhatsApp (`.fab`, canto inferior direito). Escala tipográfica maior (H1 62 / H2 46 / H3 30).
+- Para servir os dois layouts no mesmo DOM há **wrappers** por seção (`.section__inner`, `.cmp__inner`, `.sobre__inner`, `.contato__inner`, `.footer__inner`) e o "Agendar" do header é **duplicado** (`.header-cta--top` mobile / `.header-cta--inline` desktop).
+- `scroll-behavior:smooth` + `scroll-margin-top` nas seções (compensa o header sticky).
+- `faq.html` é responsiva-lite: no desktop a coluna alarga para `max-width:820px`.
 
 ---
 
@@ -343,10 +322,11 @@ Garantir que o site mantenha:
 2. **Não há backend** - todo contato via WhatsApp
 3. **Não há formulários** que enviem dados para servidor
 4. **Foco em conversão** - CTAs estratégicos em todas as seções
-5. **Identidade visual elegante** - rose gold, tipografia serifada, espaçamentos generosos
+5. **Identidade visual elegante** - editorial de luxo discreto (creme + dourado de acento + quase-preto), Cormorant Garamond + Manrope, mobile-first em coluna central
+6. **Duas páginas**: `index.html` (home) e `faq.html` (dúvidas + pagamentos + endereço)
 
 ---
 
-**Última atualização:** 2026-06-25
+**Última atualização:** 2026-06-26
 
 **Instrução Adicional:** Sempre que um novo pedido de mudança for feito, o Claude deve revisar e atualizar estas instruções, se necessário, para garantir que estejam sempre alinhadas com as expectativas do usuário e o estado atual do projeto.

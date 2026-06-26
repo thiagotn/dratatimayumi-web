@@ -1,2 +1,6 @@
 test-ftp-connection.sh
 test-ftp-lftp.sh
+
+# Pacotes de handoff de design (referência local, não versionar)
+*.zip
+design_handoff_*/

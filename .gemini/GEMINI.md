@@ -2,6 +2,16 @@
 
 Este documento descreve as diretrizes que **devem ser seguidas pelo Gemini** para implementar o site de Estética Avançada. Todas as instruções aqui definidas são obrigatórias durante o desenvolvimento.
 
+> ⚠️ **ATUALIZAÇÃO (2026-06-26 — redesign):** o site foi repaginado para uma direção
+> **editorial de luxo discreto** (creme + dourado de acento + quase-preto; fontes Cormorant
+> Garamond + Manrope; comparador Antes & Depois arrastável). É **responsivo**: coluna mobile-first
+> de `max-width:464px` e layout full-width em colunas a partir de **≥1024px** (header inline, hero
+> 2-col, FAB no lugar da barra fixa). Agora tem **duas páginas**: `index.html` e `faq.html` (FAQ +
+> pagamentos + endereço). As âncoras são `#inicio · #antes-depois · #procedimentos · #sobre · #contato`.
+> Várias seções abaixo (paleta rose gold, Serviços/Portfólio, `/js/main.js`) descrevem o site
+> **antigo** e estão obsoletas. **A fonte de verdade atual é `.claude/CLAUDE.md`** — consulte-o
+> antes de qualquer alteração.
+
 ---
 
 ## 🧱 Estrutura do Projeto

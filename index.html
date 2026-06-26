@@ -33,11 +33,12 @@
     <link rel="icon" type="image/png" sizes="16x16" href="/assets/favicon-16x16.png">
     <link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32x32.png">
     <link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png">
-    <meta name="theme-color" content="#b76e79">
+    <meta name="theme-color" content="#faf5ee">
 
-    <!-- Preconnect para Google Fonts -->
+    <!-- Preconnect + Google Fonts (redesign: Cormorant Garamond + Manrope) -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500;1,600&family=Manrope:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
     <!-- Google tag (gtag.js) -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-3VSZFG4V5C"></script>
@@ -49,1047 +50,541 @@
       gtag('config', 'G-3VSZFG4V5C');
     </script>
 
+    <!-- Tailwind via CDN (mantido por compatibilidade; o redesign usa CSS próprio abaixo) -->
     <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- ===================== REDESIGN — Design Tokens & estilos ===================== -->
     <style>
-      @import url("https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Poppins:wght@300;400;500;600&display=swap");
+      :root {
+        --page-bg: #e6dacb;
+        --surface: #faf5ee;
+        --surface-2: #f3ebe0;
+        --ink: #2a251f;
+        --ink-2: #221e19;
+        --gold: #c2a35f;
+        --gold-deep: #a8884e;
+        --gold-light: #e7c98a;
+        --text-muted: #6f6457;
+        --text-muted-2: #8a7f72;
+        --cream: #f7f0e6;
+        --cream-2: #c9bda6;
+        --hairline: rgba(42, 37, 31, 0.12);
+      }
 
-      /* Tipografia Base */
+      * { box-sizing: border-box; }
+      html { scroll-behavior: smooth; }
       body {
-        font-family: "Poppins", sans-serif;
+        margin: 0;
+        background: var(--page-bg);
+        color: var(--ink);
+        font-family: 'Manrope', sans-serif;
+        -webkit-font-smoothing: antialiased;
+        text-rendering: optimizeLegibility;
+      }
+      a { color: inherit; text-decoration: none; }
+      img { display: block; }
+      ::selection { background: var(--gold); color: var(--ink); }
+
+      .serif { font-family: 'Cormorant Garamond', serif; }
+
+      @keyframes hintPulse {
+        0%, 100% { transform: translate(-50%, -50%) scale(1); box-shadow: 0 4px 14px rgba(42,37,31,.35); }
+        50% { transform: translate(-50%, -50%) scale(1.07); box-shadow: 0 6px 20px rgba(42,37,31,.45); }
+      }
+      @keyframes fadeUp {
+        from { opacity: 0; transform: translateY(14px); }
+        to { opacity: 1; transform: none; }
       }
 
-      /* Títulos - Fonte Elegante Serifada */
-      h1,
-      h2,
-      h3,
-      h4,
-      h5,
-      h6 {
-        font-family: "Playfair Display", serif;
+      /* Coluna central (mobile-first; no desktop vira full-width — ver @media) */
+      .page {
+        max-width: 464px;
+        margin: 0 auto;
+        background: var(--surface);
+        min-height: 100vh;
+        position: relative;
+        overflow-x: hidden;
+        padding-bottom: 104px;
+        box-shadow: 0 0 60px -20px rgba(42, 37, 31, 0.25);
       }
+      section[id] { scroll-margin-top: 104px; }
+      .section__inner { width: 100%; }
 
-      /* Texto Geral - Fonte Limpa e Legível */
-      p,
-      span,
-      li,
-      a,
-      button,
-      input,
-      textarea,
-      label,
-      div {
-        font-family: "Poppins", sans-serif;
+      /* Eyebrow / divisórias */
+      .eyebrow {
+        font-weight: 600; font-size: 11px; letter-spacing: .24em;
+        text-transform: uppercase; color: var(--gold-deep);
       }
+      .filete { width: 38px; height: 1px; background: var(--gold); }
 
-      .rose-gold {
-        color: #b76e79;
+      /* Botões / pills */
+      .btn {
+        display: inline-flex; align-items: center; justify-content: center; gap: 9px;
+        font-weight: 600; border-radius: 999px; cursor: pointer; transition: .2s;
       }
+      .btn--gold { background: var(--gold); color: var(--ink); }
+      .btn--outline { border: 1px solid rgba(247,240,230,.55); color: var(--cream); }
+      .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--ink); display: inline-block; }
 
-      .rose-gold-bg {
-        background-color: #b76e79;
+      /* Ícone Instagram desenhado em CSS (corpo + lente + ponto, todos em currentColor) */
+      .ig { position: relative; display: inline-block; width: 15px; height: 15px; border: 1.6px solid currentColor; border-radius: 5px; }
+      .ig::before { content: ""; position: absolute; top: 50%; left: 50%; width: 7px; height: 7px; border: 1.6px solid currentColor; border-radius: 50%; transform: translate(-50%, -50%); }
+      .ig::after { content: ""; position: absolute; top: 2px; right: 2px; width: 2px; height: 2px; border-radius: 50%; background: currentColor; }
+      .ig--lg { width: 18px; height: 18px; }
+      .ig--lg::before { width: 8px; height: 8px; }
+
+      /* Header */
+      .site-header {
+        position: sticky; top: 0; z-index: 40;
+        background: rgba(250, 245, 238, .86);
+        backdrop-filter: saturate(140%) blur(12px);
+        -webkit-backdrop-filter: saturate(140%) blur(12px);
+        border-bottom: 1px solid rgba(42, 37, 31, .08);
       }
-
-      .soft-pink-bg {
-        background-color: #fff5f7;
+      .site-header__inner { display: flex; flex-wrap: wrap; align-items: center; column-gap: 12px; padding: 14px 20px 12px; }
+      .brand { flex: 1 1 auto; display: flex; flex-direction: column; line-height: 1; }
+      .brand__name { font-weight: 600; font-size: 21px; letter-spacing: .01em; color: var(--ink); }
+      .brand__sub { font-weight: 600; font-size: 9px; letter-spacing: .32em; text-transform: uppercase; color: var(--gold-deep); margin-top: 3px; }
+      .nav { flex-basis: 100%; display: flex; gap: 8px; overflow-x: auto; padding: 12px 0 0; scrollbar-width: none; }
+      .nav::-webkit-scrollbar { display: none; }
+      .nav a:not(.header-cta) {
+        flex: none; font-weight: 600; font-size: 11px; letter-spacing: .12em; text-transform: uppercase;
+        color: #5b5247; border: 1px solid var(--hairline); background: #fff; padding: 8px 13px; border-radius: 999px;
       }
+      .header-cta { display: inline-flex; align-items: center; background: var(--gold); color: var(--ink); font-weight: 600; font-size: 12px; letter-spacing: .04em; padding: 9px 16px; border-radius: 999px; transition: .2s; }
+      .header-cta--inline { display: none; }
 
-      .hover-rose:hover {
-        background-color: #a35d68;
+      /* Hero */
+      .hero { position: relative; height: 560px; overflow: hidden; background: #e7ddd0; }
+      .hero__media { position: absolute; inset: 0; }
+      .hero__img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+      .hero__overlay { position: absolute; inset: 0; background: linear-gradient(180deg, rgba(42,37,31,.12) 0%, rgba(42,37,31,.05) 38%, rgba(42,37,31,.62) 82%, rgba(42,37,31,.82) 100%); }
+      .hero__content { position: absolute; left: 0; right: 0; bottom: 0; padding: 0 24px 34px; animation: fadeUp .8s ease both; }
+      .hero .filete { margin-bottom: 16px; }
+      .hero h1 { font-weight: 600; font-size: 46px; line-height: .98; color: var(--cream); margin: 12px 0 14px; letter-spacing: .005em; }
+      .hero h1 em { font-style: italic; color: var(--gold-light); }
+      .hero p { font-weight: 300; font-size: 15px; line-height: 1.6; color: #e9e1d4; margin: 0 0 22px; max-width: 330px; }
+      .hero .eyebrow { color: var(--gold-light); letter-spacing: .3em; }
+      .hero__cta { display: flex; gap: 10px; flex-wrap: wrap; }
+      .hero__cta .btn--gold { font-size: 14px; padding: 13px 22px; }
+      .hero__cta .btn--outline { font-size: 14px; padding: 13px 18px; }
+
+      /* Trust strip */
+      .trust { background: var(--ink); color: #f0e7d8; }
+      .trust__inner { display: flex; justify-content: space-around; text-align: center; padding: 22px 16px; }
+      .trust__num { font-family: 'Cormorant Garamond', serif; font-size: 26px; font-weight: 600; color: var(--gold-light); }
+      .trust__label { font-size: 10px; letter-spacing: .14em; text-transform: uppercase; color: #b3a690; margin-top: 2px; }
+      .trust__sep { width: 1px; background: rgba(240, 231, 216, .16); }
+
+      /* Seções */
+      .section { padding: 46px 22px 40px; }
+      .section--alt { background: var(--surface-2); padding: 42px 22px; }
+      .section h2 { font-family: 'Cormorant Garamond', serif; font-weight: 600; font-size: 33px; line-height: 1.04; margin: 8px 0; color: var(--ink); }
+      .lead { font-weight: 400; font-size: 14px; line-height: 1.6; color: var(--text-muted); margin: 0 0 20px; max-width: 340px; }
+
+      /* Comparador Antes & Depois */
+      .cmp-pills { display: flex; gap: 8px; margin-bottom: 18px; }
+      .cmp-pill {
+        flex: none; cursor: pointer; font-family: 'Manrope', sans-serif; font-weight: 600; font-size: 13px;
+        letter-spacing: .02em; padding: 10px 18px; border-radius: 999px; transition: .2s;
+        border: 1px solid var(--ink); background: var(--ink); color: var(--cream);
       }
-
-      .hover-lift {
-        transition:
-          transform 0.3s ease,
-          box-shadow 0.3s ease;
+      .cmp-frame {
+        position: relative; width: 100%; aspect-ratio: 3/4; border-radius: 20px; overflow: hidden;
+        cursor: ew-resize; touch-action: none; user-select: none; background: #e7ddd0;
+        box-shadow: 0 22px 46px -22px rgba(42, 37, 31, .5);
       }
+      .cmp-frame img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+      .cmp-after { position: absolute; inset: 0; clip-path: inset(0 0 0 50%); }
+      .cmp-tag { position: absolute; bottom: 14px; font-weight: 600; font-size: 10px; letter-spacing: .18em; padding: 6px 11px; border-radius: 999px; pointer-events: none; }
+      .cmp-tag--before { left: 14px; background: rgba(42, 37, 31, .55); backdrop-filter: blur(4px); color: var(--cream); }
+      .cmp-tag--after { right: 14px; background: rgba(194, 163, 95, .92); color: var(--ink); }
+      .cmp-divider { position: absolute; top: 0; bottom: 0; left: 50%; width: 2px; background: rgba(247, 240, 230, .95); transform: translateX(-1px); pointer-events: none; box-shadow: 0 0 0 .5px rgba(42, 37, 31, .2); }
+      .cmp-handle { position: absolute; top: 50%; left: 50%; width: 46px; height: 46px; border-radius: 50%; background: var(--surface); border: 1.5px solid var(--gold); display: flex; align-items: center; justify-content: center; animation: hintPulse 2.6s ease-in-out infinite; }
+      .cmp-handle span { font-size: 17px; color: var(--gold-deep); font-weight: 700; letter-spacing: -1px; }
+      .cmp-caption { font-size: 12px; color: var(--text-muted-2); text-align: center; margin: 14px 0 0; letter-spacing: .04em; }
 
-      .hover-lift:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 15px 35px rgba(183, 110, 121, 0.2);
+      /* Procedimentos */
+      .proc__head { margin-bottom: 22px; }
+      .proc-list { display: flex; flex-direction: column; gap: 18px; }
+      .proc-card { background: var(--surface); border-radius: 18px; overflow: hidden; box-shadow: 0 14px 34px -22px rgba(42, 37, 31, .4); }
+      .proc-card__media { position: relative; width: 100%; aspect-ratio: 16/10; background: #e7ddd0; }
+      .proc-card__media img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+      .proc-card__body { padding: 20px 20px 22px; }
+      .proc-card__body h3 { font-family: 'Cormorant Garamond', serif; font-weight: 600; font-size: 25px; margin: 4px 0 8px; color: var(--ink); }
+      .proc-card__body p { font-weight: 300; font-size: 14px; line-height: 1.62; color: var(--text-muted); margin: 0 0 16px; }
+      .proc-card__tag { font-weight: 600; font-size: 10px; letter-spacing: .2em; text-transform: uppercase; color: var(--gold-deep); }
+      .text-link { display: inline-flex; align-items: center; gap: 8px; font-weight: 600; font-size: 13px; color: var(--ink); border-bottom: 1.5px solid var(--gold); padding-bottom: 3px; transition: .2s; }
+      .text-link span { color: var(--gold); }
+
+      /* Sobre */
+      .sobre__portrait { position: relative; width: 100%; aspect-ratio: 4/5; border-radius: 20px; overflow: hidden; background: #e7ddd0; box-shadow: 0 18px 40px -24px rgba(42, 37, 31, .45); margin-bottom: 24px; }
+      .sobre__portrait img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+      .sobre__text h2 { margin-bottom: 14px; }
+      .sobre__text p { font-weight: 300; font-size: 15px; line-height: 1.68; color: #5f5648; margin: 0 0 14px; }
+      .chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 18px; }
+      .chip { font-weight: 500; font-size: 12px; color: #5b5247; background: var(--surface-2); border: 1px solid rgba(42, 37, 31, .08); padding: 8px 13px; border-radius: 999px; }
+
+      /* Contato */
+      .contato { padding: 46px 22px 40px; background: var(--ink); color: #f0e7d8; border-radius: 28px 28px 0 0; }
+      .contato h2 { font-family: 'Cormorant Garamond', serif; font-weight: 600; font-size: 33px; line-height: 1.04; margin: 8px 0; color: var(--cream); }
+      .contato .eyebrow { color: var(--gold-light); }
+      .contato .lead { font-weight: 300; font-size: 14px; line-height: 1.6; color: var(--cream-2); margin: 0 0 24px; max-width: 330px; }
+      .contact-list { display: flex; flex-direction: column; gap: 2px; margin-bottom: 24px; }
+      .contact-item { display: flex; align-items: center; gap: 14px; padding: 16px 4px; border-bottom: 1px solid rgba(240, 231, 216, .12); }
+      .contact-item__icon { width: 38px; height: 38px; border-radius: 50%; border: 1px solid var(--gold); display: flex; align-items: center; justify-content: center; color: var(--gold-light); font-size: 15px; flex: none; }
+      .contact-item__label { font-size: 10px; letter-spacing: .18em; text-transform: uppercase; color: #b3a690; }
+      .contact-item__value { font-family: 'Cormorant Garamond', serif; font-size: 19px; color: var(--cream); }
+      .contato__btn { width: 100%; font-size: 15px; padding: 16px; }
+      .contato__faq-wrap { text-align: center; }
+      .contato__faq-link { display: inline-flex; align-items: center; gap: 6px; margin-top: 18px; font-weight: 600; font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: var(--gold-light); border-bottom: 1px solid rgba(231, 201, 138, .4); padding-bottom: 3px; }
+
+      /* Footer */
+      .footer { background: var(--ink-2); color: #9a8f7d; }
+      .footer__inner { padding: 26px 22px 30px; text-align: center; }
+      .footer__name { font-family: 'Cormorant Garamond', serif; font-size: 20px; color: var(--gold-light); margin-bottom: 4px; }
+      .footer__sub { font-size: 11px; letter-spacing: .18em; text-transform: uppercase; margin-bottom: 14px; }
+      .footer__copy { font-size: 11px; color: #6f665a; }
+
+      /* Barra fixa de CTA (mobile) */
+      .cta-bar {
+        position: fixed; left: 50%; bottom: 0; transform: translateX(-50%); width: 100%; max-width: 464px; z-index: 50;
+        padding: 12px 16px calc(12px + env(safe-area-inset-bottom));
+        background: linear-gradient(180deg, rgba(250, 245, 238, 0), rgba(250, 245, 238, .96) 32%);
+        display: flex; gap: 10px;
       }
+      .cta-bar__wa { flex: 1; background: var(--gold); color: var(--ink); font-size: 15px; padding: 15px; box-shadow: 0 10px 26px -10px rgba(42, 37, 31, .5); }
+      .cta-bar__ig { flex: none; width: 52px; display: flex; align-items: center; justify-content: center; background: var(--ink); border-radius: 999px; }
 
-      .elegant-border {
-        border: 1px solid rgba(183, 110, 121, 0.3);
-      }
+      /* Botão flutuante (só desktop) */
+      .fab { display: none; }
 
-      .decorative-line {
-        width: 80px;
-        height: 2px;
-        background: linear-gradient(90deg, transparent, #b76e79, transparent);
-      }
+      /* ===================== DESKTOP (≥1024px) ===================== */
+      @media (min-width: 1024px) {
+        .page { max-width: none; box-shadow: none; padding-bottom: 0; }
+        body { background: var(--surface); }
+        section[id] { scroll-margin-top: 88px; }
 
-      /* Gallery Styles */
-      .gallery-container {
-        display: grid;
-        gap: 1.5rem;
-      }
+        /* Header — linha única, links inline */
+        .site-header__inner { flex-wrap: nowrap; max-width: 1200px; margin: 0 auto; padding: 18px 40px; }
+        .brand { flex: 0 0 auto; }
+        .brand__name { font-size: 24px; }
+        .nav { flex-basis: auto; margin-left: auto; gap: 34px; overflow: visible; padding: 0; align-items: center; }
+        .nav a:not(.header-cta) { border: none; background: none; padding: 0; font-size: 12px; letter-spacing: .1em; }
+        .nav a:not(.header-cta):hover { color: var(--gold-deep); }
+        .header-cta--top { display: none; }
+        .header-cta--inline { display: inline-flex; }
+        .header-cta { font-size: 13px; padding: 11px 22px; }
+        .header-cta:hover { background: #b58f45; }
 
-      @media (min-width: 768px) {
-        .gallery-container {
-          grid-template-columns: repeat(2, 1fr);
+        /* Hero — 2 colunas (texto sobre creme | imagem) */
+        .hero { position: static; display: grid; grid-template-columns: 1fr 1fr; min-height: 620px; height: auto; overflow: visible; }
+        .hero__media { position: relative; inset: auto; order: 2; min-height: 620px; }
+        .hero__overlay { background: linear-gradient(270deg, rgba(42,37,31,0) 60%, rgba(250,245,238,.35) 100%); }
+        .hero__content { position: static; order: 1; padding: 80px 64px 80px clamp(40px, 7vw, 150px); display: flex; flex-direction: column; justify-content: center; }
+        .hero .filete { width: 42px; margin-bottom: 22px; }
+        .hero .eyebrow { color: var(--gold-deep); font-size: 12px; }
+        .hero h1 { font-size: 62px; color: var(--ink); margin: 18px 0 20px; }
+        .hero h1 em { color: var(--gold-deep); }
+        .hero p { font-size: 17px; line-height: 1.65; color: var(--text-muted); max-width: 430px; margin: 0 0 30px; }
+        .hero__cta { gap: 14px; }
+        .hero__cta .btn--gold { font-size: 15px; padding: 15px 28px; }
+        .hero__cta .btn--gold:hover { background: #b58f45; }
+        .hero__cta .btn--outline { font-size: 15px; padding: 15px 24px; border-color: rgba(42,37,31,.25); color: var(--ink); }
+        .hero__cta .btn--outline:hover { border-color: var(--gold); color: var(--gold-deep); }
+
+        /* Trust strip */
+        .trust__inner { max-width: 1000px; margin: 0 auto; padding: 34px 40px; }
+        .trust__num { font-size: 40px; }
+        .trust__label { font-size: 11px; letter-spacing: .16em; }
+
+        /* Eyebrow geral maior */
+        .eyebrow { font-size: 12px; }
+
+        /* Seções claras */
+        .section, .section--alt { padding: 96px 40px; }
+        .section h2, .contato h2 { font-size: 46px; line-height: 1.02; }
+        .section__inner { max-width: 1100px; margin: 0 auto; }
+
+        /* Antes & Depois — 2 colunas (texto | comparador 460px) */
+        .cmp__inner { display: grid; grid-template-columns: 1fr 460px; gap: 64px; align-items: center; }
+        .cmp__text .lead { font-size: 17px; max-width: 380px; margin-bottom: 28px; }
+        .cmp-pill { font-size: 14px; padding: 11px 22px; }
+        .cmp-frame { border-radius: 22px; box-shadow: 0 28px 56px -26px rgba(42,37,31,.55); }
+        .cmp-tag { font-size: 11px; padding: 7px 13px; bottom: 16px; }
+        .cmp-tag--before { left: 16px; }
+        .cmp-tag--after { right: 16px; }
+        .cmp-handle { width: 50px; height: 50px; }
+        .cmp-handle span { font-size: 19px; }
+        .cmp-caption { font-size: 13px; margin-top: 16px; }
+
+        /* Procedimentos — header centralizado + grid 2 col */
+        .proc__head { text-align: center; margin-bottom: 48px; }
+        .proc-list { display: grid; grid-template-columns: 1fr 1fr; gap: 28px; }
+        .proc-card { border-radius: 20px; box-shadow: 0 18px 40px -26px rgba(42,37,31,.42); }
+        .proc-card__body { padding: 30px 32px 34px; }
+        .proc-card__body h3 { font-size: 30px; margin: 6px 0 12px; }
+        .proc-card__body p { font-size: 15px; line-height: 1.65; margin: 0 0 20px; }
+        .proc-card__tag { font-size: 11px; }
+        .text-link { font-size: 14px; }
+        .text-link:hover { color: var(--gold-deep); }
+
+        /* Sobre — 2 colunas (retrato 440 | texto) */
+        .sobre__inner { display: grid; grid-template-columns: 440px 1fr; gap: 72px; align-items: center; }
+        .sobre__portrait { margin-bottom: 0; border-radius: 22px; box-shadow: 0 22px 46px -28px rgba(42,37,31,.5); }
+        .sobre__text h2 { margin: 10px 0 18px; }
+        .sobre__text p { font-size: 17px; line-height: 1.7; color: #5f5648; max-width: 520px; margin: 0 0 16px; }
+        .chips { gap: 10px; margin-top: 22px; }
+        .chip { font-size: 13px; padding: 9px 15px; }
+
+        /* Contato — banda full-width, 2 colunas com card à direita */
+        .contato { padding: 96px 40px; border-radius: 0; }
+        .contato__inner { display: grid; grid-template-columns: 1fr 1fr; gap: 72px; align-items: center; }
+        .contato .lead { font-size: 16px; max-width: 380px; margin-bottom: 0; }
+        .contato__card { background: rgba(247,240,230,.05); border: 1px solid rgba(231,201,138,.25); border-radius: 22px; padding: 34px 34px 30px; }
+        .contact-item { padding: 14px 4px; }
+        .contact-item__icon { width: 40px; height: 40px; font-size: 16px; }
+        .contact-item__value { font-size: 21px; }
+        .contato__faq-wrap { max-width: 1100px; margin: 28px auto 0; }
+
+        /* Footer — linha única */
+        .footer__inner { max-width: 1100px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px; padding: 30px 40px; text-align: left; }
+        .footer__name { font-size: 22px; margin-bottom: 0; }
+        .footer__sub { margin: 3px 0 0; }
+        .footer__copy { font-size: 12px; }
+
+        /* Barra fixa some; entra o botão flutuante */
+        .cta-bar { display: none; }
+        .fab {
+          display: flex; align-items: center; justify-content: center;
+          position: fixed; bottom: 28px; right: 28px; z-index: 60;
+          width: 60px; height: 60px; border-radius: 50%;
+          background: var(--gold); color: var(--ink); font-size: 24px;
+          box-shadow: 0 14px 30px -10px rgba(42, 37, 31, .6); transition: .2s;
         }
-      }
-
-      .before-after-card {
-        position: relative;
-        overflow: hidden;
-        border-radius: 1rem;
-        background: white;
-        display: flex;
-        flex-direction: column;
-      }
-
-      .portfolio-image-container {
-        position: relative;
-        width: 100%;
-        aspect-ratio: 1;
-        overflow: hidden;
-        background: #f5f5f5;
-      }
-
-      .portfolio-image {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-        object-position: center;
-      }
-
-      #whatsapp-button {
-        position: fixed;
-        bottom: 20px;
-        right: 20px;
-        background-color: #25d366;
-        border-radius: 50%;
-        width: 60px;
-        height: 60px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-        z-index: 1000;
-        transition: transform 0.3s ease;
-      }
-
-      #whatsapp-button:hover {
-        transform: scale(1.1);
-      }
-
-      /* FAQ Accordion Styles */
-      .faq-answer {
-        max-height: 0;
-        overflow: hidden;
-        transition: max-height 0.3s ease-in-out;
-      }
-
-      .faq-icon {
-        transition: transform 0.3s ease-in-out;
-      }
-
-      .faq-question:focus {
-        outline: 2px solid #b76e79;
-        outline-offset: 2px;
+        .fab:hover { background: #d8b769; }
       }
     </style>
   </head>
-  <body class="bg-white text-gray-800">
-    <!-- Header/Navigation -->
-    <header class="fixed w-full top-0 z-50 bg-white shadow-sm">
-      <nav class="container mx-auto px-4 sm:px-6 py-4">
-        <div class="flex justify-between items-center">
-          <div class="text-xl sm:text-2xl font-bold rose-gold">
-            Dra. Tati Mayumi
-          </div>
-          <div
-            class="hidden md:flex space-x-6 lg:space-x-8 items-center text-sm lg:text-base"
-          >
-            <a href="#inicio" class="text-gray-700 hover:rose-gold transition"
-              >Início</a
-            >
-            <a href="#servicos" class="text-gray-700 hover:rose-gold transition"
-              >Serviços</a
-            >
-            <a
-              href="#portfolio"
-              class="text-gray-700 hover:rose-gold transition"
-              >Portfólio</a
-            >
-            <a href="#sobre" class="text-gray-700 hover:rose-gold transition"
-              >Sobre</a
-            >
-            <a href="#faq" class="text-gray-700 hover:rose-gold transition"
-              >FAQ</a
-            >
-            <a href="#contato" class="text-gray-700 hover:rose-gold transition"
-              >Contato</a
-            >
-            <a
-              href="https://wa.me/5511976713350?text=Olá! Gostaria de agendar um horário."
-              class="rose-gold-bg text-white px-5 py-2 rounded-full hover-rose transition text-sm lg:text-base"
-            >
-              Agende já
+
+  <body>
+    <div class="page">
+      <!-- ===================== HEADER ===================== -->
+      <header class="site-header">
+        <div class="site-header__inner">
+          <a href="#inicio" class="brand">
+            <span class="brand__name serif">Dra. Tati Mayumi</span>
+            <span class="brand__sub">Estética Avançada</span>
+          </a>
+          <a href="#" class="header-cta header-cta--top" target="_blank" rel="noopener">Agendar</a>
+          <nav class="nav">
+            <a href="#inicio">Início</a>
+            <a href="#antes-depois">Antes &amp; Depois</a>
+            <a href="#procedimentos">Procedimentos</a>
+            <a href="#sobre">Sobre</a>
+            <a href="#contato">Contato</a>
+            <a href="faq.html">Dúvidas</a>
+            <a href="#" class="header-cta header-cta--inline" target="_blank" rel="noopener">Agendar</a>
+          </nav>
+        </div>
+      </header>
+
+      <!-- ===================== HERO ===================== -->
+      <section id="inicio" class="hero">
+        <div class="hero__media">
+          <!-- TODO: substituir por um retrato limpo da Dra. (provisório: foto de procedimento) -->
+          <img class="hero__img" src="assets/portfolio/injetando.jpeg" alt="Dra. Tati Mayumi - Estética Avançada no Tatuapé, São Paulo" />
+          <div class="hero__overlay"></div>
+        </div>
+        <div class="hero__content">
+          <div class="filete"></div>
+          <span class="eyebrow">Realce a sua beleza natural</span>
+          <h1 class="serif">Harmonia que<br />respeita a sua<br /><em>essência</em></h1>
+          <p>Procedimentos personalizados de estética facial com resultados sutis, elegantes e profundamente naturais.</p>
+          <div class="hero__cta">
+            <a href="#" class="btn btn--gold" target="_blank" rel="noopener">
+              <span class="dot"></span>Agendar pelo WhatsApp
             </a>
-          </div>
-          <button class="md:hidden rose-gold" onclick="toggleMenu()">
-            <svg
-              class="w-6 h-6"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M4 6h16M4 12h16M4 18h16"
-              ></path>
-            </svg>
-          </button>
-        </div>
-        <!-- Mobile Menu -->
-        <div id="mobileMenu" class="hidden md:hidden mt-4 pb-4 space-y-3">
-          <a
-            href="#inicio"
-            class="block text-gray-700 hover:rose-gold transition"
-            >Início</a
-          >
-          <a
-            href="#servicos"
-            class="block text-gray-700 hover:rose-gold transition"
-            >Serviços</a
-          >
-          <a
-            href="#portfolio"
-            class="block text-gray-700 hover:rose-gold transition"
-            >Portfólio</a
-          >
-          <a
-            href="#sobre"
-            class="block text-gray-700 hover:rose-gold transition"
-            >Sobre</a
-          >
-          <a
-            href="#faq"
-            class="block text-gray-700 hover:rose-gold transition"
-            >FAQ</a
-          >
-          <a
-            href="#contato"
-            class="block text-gray-700 hover:rose-gold transition"
-            >Contato</a
-          >
-        </div>
-      </nav>
-    </header>
-
-    <!-- Hero Section -->
-    <section id="inicio" class="pt-28 sm:pt-32 pb-16 sm:pb-20 soft-pink-bg">
-      <div class="container mx-auto px-4 sm:px-6 py-12 sm:py-20">
-        <div class="max-w-4xl mx-auto text-center">
-          <img
-            src="assets/logo-bigger-no-text-transparent-removebg-preview.png"
-            alt="Dra. Tati Mayumi - Estética Avançada no Tatuapé São Paulo"
-            class="mx-auto mb-8 w-56"
-            width="224"
-            height="224"
-          />
-          <div class="decorative-line mx-auto mb-6"></div>
-          <h1
-            class="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold mb-4 sm:mb-6 text-gray-800 leading-tight"
-          >
-            Dra. Tati Mayumi
-          </h1>
-          <p
-            class="rose-gold text-lg sm:text-xl md:text-2xl mb-6 sm:mb-8 tracking-wide"
-          >
-            Estética Avançada
-          </p>
-          <p
-            class="text-lg sm:text-xl md:text-2xl mb-8 sm:mb-12 text-gray-600 max-w-2xl mx-auto leading-relaxed px-4"
-          >
-            Realce sua beleza natural com procedimentos personalizados e
-            resultados harmoniosos
-          </p>
-          <a
-            href="https://wa.me/5511976713350?text=Olá! Gostaria de agendar um horário."
-            class="inline-block rose-gold-bg text-white px-8 sm:px-12 py-3 sm:py-4 rounded-full hover-rose transition text-base sm:text-lg"
-          >
-            Agendar Consulta
-          </a>
-        </div>
-      </div>
-    </section>
-
-    <!-- Serviços -->
-    <section
-      id="servicos"
-      class="pt-28 sm:pt-32 py-16 sm:py-20 md:py-24 bg-white"
-    >
-      <div class="container mx-auto px-4 sm:px-6">
-        <div class="text-center mb-12 sm:mb-16 md:mb-20">
-          <div class="decorative-line mx-auto mb-4 sm:mb-6"></div>
-          <h2
-            class="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-gray-800 mb-3 sm:mb-4"
-          >
-            Serviços
-          </h2>
-          <p class="text-gray-600 text-base sm:text-lg">
-            Procedimentos de excelência
-          </p>
-        </div>
-
-        <div
-          class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8 md:gap-10 max-w-6xl mx-auto"
-        >
-          <!-- Botox -->
-          <div
-            class="bg-white elegant-border rounded-2xl p-6 sm:p-8 md:p-10 hover-lift"
-          >
-            <div
-              class="w-14 h-14 sm:w-16 sm:h-16 rounded-full rose-gold-bg bg-opacity-10 flex items-center justify-center mb-5 sm:mb-6 mx-auto"
-            >
-              <svg
-                class="w-7 h-7 sm:w-8 sm:h-8 rose-gold"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                ></path>
-              </svg>
-            </div>
-            <h3
-              class="text-2xl sm:text-3xl font-semibold text-center text-gray-800 mb-3 sm:mb-4"
-            >
-              Botox
-            </h3>
-            <div class="decorative-line mx-auto mb-4 sm:mb-6"></div>
-            <p
-              class="text-gray-600 mb-5 sm:mb-6 text-center leading-relaxed text-sm sm:text-base"
-            >
-              Suavização de rugas e linhas de expressão com resultados naturais
-              e harmoniosos.
-            </p>
-            <ul
-              class="text-gray-600 space-y-2 sm:space-y-3 text-sm sm:text-base"
-            >
-              <li class="flex items-center justify-center">
-                <span class="rose-gold mr-2">✓</span> Resultados em até 14 dias
-              </li>
-              <li class="flex items-center justify-center">
-                <span class="rose-gold mr-2">✓</span> Duração de 4-6 meses
-              </li>
-              <li class="flex items-center justify-center">
-                <span class="rose-gold mr-2">✓</span> Procedimento seguro
-              </li>
-            </ul>
-          </div>
-
-          <!-- Preenchimento Labial -->
-          <div
-            class="bg-white elegant-border rounded-2xl p-6 sm:p-8 md:p-10 hover-lift"
-          >
-            <div
-              class="w-14 h-14 sm:w-16 sm:h-16 rounded-full rose-gold-bg bg-opacity-10 flex items-center justify-center mb-5 sm:mb-6 mx-auto"
-            >
-              <svg
-                class="w-7 h-7 sm:w-8 sm:h-8 rose-gold"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
-                ></path>
-              </svg>
-            </div>
-            <h3
-              class="text-2xl sm:text-3xl font-semibold text-center text-gray-800 mb-3 sm:mb-4"
-            >
-              Preenchimento Labial
-            </h3>
-            <div class="decorative-line mx-auto mb-4 sm:mb-6"></div>
-            <p
-              class="text-gray-600 mb-5 sm:mb-6 text-center leading-relaxed text-sm sm:text-base"
-            >
-              Aumento e modelagem dos lábios com ácido hialurônico para volume e
-              definição natural.
-            </p>
-            <ul
-              class="text-gray-600 space-y-2 sm:space-y-3 text-sm sm:text-base"
-            >
-              <li class="flex items-center justify-center">
-                <span class="rose-gold mr-2">✓</span> Resultado imediato
-              </li>
-              <li class="flex items-center justify-center">
-                <span class="rose-gold mr-2">✓</span> Aparência natural
-              </li>
-              <li class="flex items-center justify-center">
-                <span class="rose-gold mr-2">✓</span> Reversível e seguro
-              </li>
-            </ul>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- Portfólio -->
-    <section
-      id="portfolio"
-      class="pt-28 sm:pt-32 py-16 sm:py-20 md:py-24 soft-pink-bg"
-    >
-      <div class="container mx-auto px-4 sm:px-6">
-        <div class="text-center mb-12 sm:mb-16 md:mb-20">
-          <div class="decorative-line mx-auto mb-4 sm:mb-6"></div>
-          <h2
-            class="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-gray-800 mb-3 sm:mb-4"
-          >
-            Portfólio
-          </h2>
-          <p class="text-gray-600 text-base sm:text-lg">
-            Resultados que falam por si
-          </p>
-        </div>
-
-        <div class="gallery-container max-w-5xl mx-auto">
-          <!-- Portfolio 1 -->
-          <div class="before-after-card elegant-border hover-lift">
-            <div class="portfolio-image-container">
-              <img
-                src="assets/portfolio/labial-01.jpeg"
-                alt="Resultado de preenchimento labial realizado pela Dra Tati Mayumi - Tatuapé São Paulo"
-                class="portfolio-image"
-                width="500"
-                height="500"
-                loading="lazy"
-              />
-            </div>
-            <div class="p-4 sm:p-6">
-              <h3
-                class="text-lg sm:text-xl font-semibold text-gray-800 mb-2 text-center"
-              >
-                Preenchimento Labial
-              </h3>
-              <p class="text-gray-600 text-center text-sm sm:text-base">
-                Resultado natural com volume equilibrado
-              </p>
-            </div>
-          </div>
-
-          <!-- Portfolio 2 -->
-          <div class="before-after-card elegant-border hover-lift">
-            <div class="portfolio-image-container">
-              <img
-                src="assets/portfolio/labial-02.jpeg"
-                alt="Preenchimento labial com ácido hialurônico - Dra Tati Mayumi Tatuapé"
-                class="portfolio-image"
-                width="500"
-                height="500"
-                loading="lazy"
-              />
-            </div>
-            <div class="p-4 sm:p-6">
-              <h3
-                class="text-lg sm:text-xl font-semibold text-gray-800 mb-2 text-center"
-              >
-                Preenchimento Labial
-              </h3>
-              <p class="text-gray-600 text-center text-sm sm:text-base">
-                Volume e definição com aspecto natural
-              </p>
-            </div>
-          </div>
-
-          <!-- Portfolio 3 -->
-          <div class="before-after-card elegant-border hover-lift">
-            <div class="portfolio-image-container">
-              <img
-                src="assets/portfolio/labial-03.jpeg"
-                alt="Harmonização facial com preenchimento labial - Estética Avançada Tatuapé"
-                class="portfolio-image"
-                width="500"
-                height="500"
-                loading="lazy"
-              />
-            </div>
-            <div class="p-4 sm:p-6">
-              <h3
-                class="text-lg sm:text-xl font-semibold text-gray-800 mb-2 text-center"
-              >
-                Preenchimento Labial
-              </h3>
-              <p class="text-gray-600 text-center text-sm sm:text-base">
-                Harmonização facial personalizada
-              </p>
-            </div>
-          </div>
-
-          <!-- Portfolio 4 -->
-          <div class="before-after-card elegant-border hover-lift">
-            <div class="portfolio-image-container">
-              <img
-                src="assets/portfolio/labial-04.jpeg"
-                alt="Resultado natural de preenchimento labial - Dra Tati Mayumi São Paulo"
-                class="portfolio-image"
-                width="500"
-                height="500"
-                loading="lazy"
-              />
-            </div>
-            <div class="p-4 sm:p-6">
-              <h3
-                class="text-lg sm:text-xl font-semibold text-gray-800 mb-2 text-center"
-              >
-                Preenchimento Labial
-              </h3>
-              <p class="text-gray-600 text-center text-sm sm:text-base">
-                Realce sutil e elegante
-              </p>
-            </div>
-          </div>
-        </div>
-
-        <div class="text-center mt-10 sm:mt-12">
-          <p class="text-gray-600 mb-6 sm:mb-8 text-sm sm:text-base px-4">
-            *Resultados podem variar de acordo com cada pessoa
-          </p>
-          <a
-            href="https://wa.me/5511976713350?text=Olá! Gostaria de agendar um horário."
-            class="inline-block rose-gold-bg text-white px-8 sm:px-10 py-3 sm:py-4 rounded-full hover-rose transition text-sm sm:text-base"
-          >
-            Quero meu resultado
-          </a>
-        </div>
-      </div>
-    </section>
-
-    <!-- Sobre -->
-    <section id="sobre" class="pt-28 sm:pt-32 py-16 sm:py-20 md:py-24 bg-white">
-      <div class="container mx-auto px-4 sm:px-6">
-        <div class="max-w-5xl mx-auto">
-          <div class="text-center mb-12 sm:mb-16">
-            <div class="decorative-line mx-auto mb-4 sm:mb-6"></div>
-            <h2
-              class="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-gray-800 mb-4 sm:mb-6"
-            >
-              Por que nos escolher?
-            </h2>
-            <p
-              class="text-gray-600 text-base sm:text-lg leading-relaxed max-w-3xl mx-auto px-4"
-            >
-              Combinamos experiência, técnica apurada e um olhar artístico para
-              realçar sua beleza natural. Cada procedimento é planejado
-              individualmente, respeitando suas características únicas e
-              objetivos pessoais.
-            </p>
-          </div>
-
-          <!-- Imagem da Dra. Tati em ação -->
-          <div class="flex justify-center mb-12 sm:mb-16">
-            <div class="relative">
-              <img
-                src="assets/portfolio/injetando.jpeg"
-                alt="Dra. Tati Mayumi realizando procedimento de estética facial - Clínica Tatuapé SP"
-                class="w-64 h-64 sm:w-80 sm:h-80 md:w-96 md:h-96 rounded-full object-cover shadow-2xl elegant-border"
-                width="384"
-                height="384"
-                loading="lazy"
-              />
-              <div
-                class="absolute -bottom-4 -right-4 rose-gold-bg text-white rounded-full w-20 h-20 sm:w-24 sm:h-24 flex items-center justify-center shadow-lg"
-              >
-                <div class="text-center">
-                  <div class="text-xl sm:text-2xl font-bold">10+</div>
-                  <div class="text-xs sm:text-sm">Anos</div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div
-            class="grid sm:grid-cols-2 lg:grid-cols-2 gap-6 sm:gap-8 mt-12 sm:mt-16"
-          >
-            <div
-              class="text-center elegant-border rounded-2xl p-6 sm:p-8 soft-pink-bg"
-            >
-              <div class="text-4xl sm:text-5xl font-bold rose-gold mb-3">
-                10+
-              </div>
-              <div class="decorative-line mx-auto mb-3"></div>
-              <p class="text-gray-600 tracking-wide text-sm sm:text-base">
-                Anos de Experiência na Área da Saúde
-              </p>
-            </div>
-            <div
-              class="text-center elegant-border rounded-2xl p-6 sm:p-8 soft-pink-bg sm:col-span-2 lg:col-span-1"
-            >
-              <div class="text-4xl sm:text-5xl font-bold rose-gold mb-3">
-                100%
-              </div>
-              <div class="decorative-line mx-auto mb-3"></div>
-              <p class="text-gray-600 tracking-wide text-sm sm:text-base">
-                Segurança e Qualidade
-              </p>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- FAQ (Perguntas Frequentes) -->
-    <section id="faq" class="pt-28 sm:pt-32 py-16 sm:py-20 md:py-24 soft-pink-bg">
-      <div class="container mx-auto px-4 sm:px-6">
-        <div class="max-w-4xl mx-auto">
-          <!-- Cabeçalho da Seção -->
-          <div class="text-center mb-12 sm:mb-16">
-            <div class="decorative-line mx-auto mb-4 sm:mb-6"></div>
-            <h2 class="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-gray-800 mb-4 sm:mb-6">
-              Perguntas Frequentes
-            </h2>
-            <p class="text-gray-600 text-base sm:text-lg max-w-2xl mx-auto">
-              Tire suas dúvidas sobre Botox e Preenchimento Labial. Se precisar de mais informações, estamos à disposição!
-            </p>
-          </div>
-
-          <!-- Seção Botox -->
-          <div class="mb-12 sm:mb-16">
-            <div class="flex items-center justify-center mb-6 sm:mb-8">
-              <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-full rose-gold-bg flex items-center justify-center mr-3">
-                <svg class="w-6 h-6 sm:w-7 sm:h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                </svg>
-              </div>
-              <h3 class="text-2xl sm:text-3xl md:text-4xl font-semibold rose-gold">Botox</h3>
-            </div>
-
-            <div class="space-y-4">
-              <!-- Pergunta 1 -->
-              <div class="faq-item bg-white elegant-border rounded-xl overflow-hidden">
-                <button class="faq-question w-full text-left p-5 sm:p-6 flex justify-between items-start gap-4 hover:bg-gray-50 transition" onclick="toggleFAQ(this)">
-                  <span class="text-base sm:text-lg font-semibold text-gray-800 pr-4">O que é Botox e para que serve?</span>
-                  <svg class="faq-icon w-5 h-5 sm:w-6 sm:h-6 rose-gold flex-shrink-0 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
-                  </svg>
-                </button>
-                <div class="faq-answer max-h-0 overflow-hidden transition-all duration-300">
-                  <div class="p-5 sm:p-6 pt-0 text-gray-600 text-sm sm:text-base leading-relaxed">
-                    O Botox (toxina botulínica) é um tratamento estético que relaxa temporariamente os músculos faciais, suavizando rugas e linhas de expressão. É especialmente eficaz para tratar rugas na testa, entre as sobrancelhas (glabela), ao redor dos olhos (pés de galinha) e para sorriso gengival.
-                  </div>
-                </div>
-              </div>
-
-              <!-- Pergunta 2 -->
-              <div class="faq-item bg-white elegant-border rounded-xl overflow-hidden">
-                <button class="faq-question w-full text-left p-5 sm:p-6 flex justify-between items-start gap-4 hover:bg-gray-50 transition" onclick="toggleFAQ(this)">
-                  <span class="text-base sm:text-lg font-semibold text-gray-800 pr-4">Quanto custa o tratamento com Botox?</span>
-                  <svg class="faq-icon w-5 h-5 sm:w-6 sm:h-6 rose-gold flex-shrink-0 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
-                  </svg>
-                </button>
-                <div class="faq-answer max-h-0 overflow-hidden transition-all duration-300">
-                  <div class="p-5 sm:p-6 pt-0 text-gray-600 text-sm sm:text-base leading-relaxed">
-                    O valor do Botox varia conforme a área tratada e a quantidade de unidades necessárias. Em média, o investimento fica entre R$ 800 e R$ 2.500 por sessão. Durante a consulta, é feita uma avaliação personalizada para determinar o valor exato do seu tratamento.
-                  </div>
-                </div>
-              </div>
-
-              <!-- Pergunta 3 -->
-              <div class="faq-item bg-white elegant-border rounded-xl overflow-hidden">
-                <button class="faq-question w-full text-left p-5 sm:p-6 flex justify-between items-start gap-4 hover:bg-gray-50 transition" onclick="toggleFAQ(this)">
-                  <span class="text-base sm:text-lg font-semibold text-gray-800 pr-4">Quanto tempo dura o efeito do Botox?</span>
-                  <svg class="faq-icon w-5 h-5 sm:w-6 sm:h-6 rose-gold flex-shrink-0 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
-                  </svg>
-                </button>
-                <div class="faq-answer max-h-0 overflow-hidden transition-all duration-300">
-                  <div class="p-5 sm:p-6 pt-0 text-gray-600 text-sm sm:text-base leading-relaxed">
-                    O efeito do Botox dura em média 4 a 6 meses. Após esse período, o movimento muscular retorna gradualmente e uma nova aplicação pode ser necessária para manter os resultados. Com aplicações regulares, muitos pacientes relatam que o efeito pode durar um pouco mais.
-                  </div>
-                </div>
-              </div>
-
-              <!-- Pergunta 4 -->
-              <div class="faq-item bg-white elegant-border rounded-xl overflow-hidden">
-                <button class="faq-question w-full text-left p-5 sm:p-6 flex justify-between items-start gap-4 hover:bg-gray-50 transition" onclick="toggleFAQ(this)">
-                  <span class="text-base sm:text-lg font-semibold text-gray-800 pr-4">A aplicação de Botox dói?</span>
-                  <svg class="faq-icon w-5 h-5 sm:w-6 sm:h-6 rose-gold flex-shrink-0 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
-                  </svg>
-                </button>
-                <div class="faq-answer max-h-0 overflow-hidden transition-all duration-300">
-                  <div class="p-5 sm:p-6 pt-0 text-gray-600 text-sm sm:text-base leading-relaxed">
-                    A aplicação é feita com agulhas muito finas e o desconforto é mínimo, descrito pela maioria dos pacientes como uma leve picada ou pressão. O procedimento dura cerca de 10 a 20 minutos e não requer anestesia. Se necessário, pode ser aplicado um creme anestésico antes do procedimento.
-                  </div>
-                </div>
-              </div>
-
-              <!-- Pergunta 5 -->
-              <div class="faq-item bg-white elegant-border rounded-xl overflow-hidden">
-                <button class="faq-question w-full text-left p-5 sm:p-6 flex justify-between items-start gap-4 hover:bg-gray-50 transition" onclick="toggleFAQ(this)">
-                  <span class="text-base sm:text-lg font-semibold text-gray-800 pr-4">Quando vejo os resultados do Botox?</span>
-                  <svg class="faq-icon w-5 h-5 sm:w-6 sm:h-6 rose-gold flex-shrink-0 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
-                  </svg>
-                </button>
-                <div class="faq-answer max-h-0 overflow-hidden transition-all duration-300">
-                  <div class="p-5 sm:p-6 pt-0 text-gray-600 text-sm sm:text-base leading-relaxed">
-                    Os primeiros resultados aparecem entre 3 a 5 dias após a aplicação, mas o efeito completo é visível em 14 dias. É importante não deitar ou fazer exercícios físicos intensos nas primeiras 4 horas após o procedimento.
-                  </div>
-                </div>
-              </div>
-
-              <!-- Pergunta 6 -->
-              <div class="faq-item bg-white elegant-border rounded-xl overflow-hidden">
-                <button class="faq-question w-full text-left p-5 sm:p-6 flex justify-between items-start gap-4 hover:bg-gray-50 transition" onclick="toggleFAQ(this)">
-                  <span class="text-base sm:text-lg font-semibold text-gray-800 pr-4">Quais são as contraindicações do Botox?</span>
-                  <svg class="faq-icon w-5 h-5 sm:w-6 sm:h-6 rose-gold flex-shrink-0 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
-                  </svg>
-                </button>
-                <div class="faq-answer max-h-0 overflow-hidden transition-all duration-300">
-                  <div class="p-5 sm:p-6 pt-0 text-gray-600 text-sm sm:text-base leading-relaxed">
-                    O Botox é contraindicado para gestantes, lactantes, pessoas com doenças neuromusculares (como miastenia gravis) e alergia a algum componente da fórmula. Durante a consulta, é feita uma avaliação completa do seu histórico de saúde para garantir a segurança do procedimento.
-                  </div>
-                </div>
-              </div>
-
-              <!-- Pergunta 7 -->
-              <div class="faq-item bg-white elegant-border rounded-xl overflow-hidden">
-                <button class="faq-question w-full text-left p-5 sm:p-6 flex justify-between items-start gap-4 hover:bg-gray-50 transition" onclick="toggleFAQ(this)">
-                  <span class="text-base sm:text-lg font-semibold text-gray-800 pr-4">Botox deixa o rosto "congelado" ou artificial?</span>
-                  <svg class="faq-icon w-5 h-5 sm:w-6 sm:h-6 rose-gold flex-shrink-0 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
-                  </svg>
-                </button>
-                <div class="faq-answer max-h-0 overflow-hidden transition-all duration-300">
-                  <div class="p-5 sm:p-6 pt-0 text-gray-600 text-sm sm:text-base leading-relaxed">
-                    Quando aplicado corretamente por um profissional qualificado, o Botox proporciona resultados naturais. O objetivo é suavizar as linhas de expressão mantendo a capacidade de expressão facial. O aspecto "congelado" geralmente ocorre quando há excesso na aplicação.
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Seção Preenchimento Labial -->
-          <div class="mb-12 sm:mb-16">
-            <div class="flex items-center justify-center mb-6 sm:mb-8">
-              <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-full rose-gold-bg flex items-center justify-center mr-3">
-                <svg class="w-6 h-6 sm:w-7 sm:h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path>
-                </svg>
-              </div>
-              <h3 class="text-2xl sm:text-3xl md:text-4xl font-semibold rose-gold">Preenchimento Labial</h3>
-            </div>
-
-            <div class="space-y-4">
-              <!-- Pergunta 1 -->
-              <div class="faq-item bg-white elegant-border rounded-xl overflow-hidden">
-                <button class="faq-question w-full text-left p-5 sm:p-6 flex justify-between items-start gap-4 hover:bg-gray-50 transition" onclick="toggleFAQ(this)">
-                  <span class="text-base sm:text-lg font-semibold text-gray-800 pr-4">O que é preenchimento labial e como funciona?</span>
-                  <svg class="faq-icon w-5 h-5 sm:w-6 sm:h-6 rose-gold flex-shrink-0 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
-                  </svg>
-                </button>
-                <div class="faq-answer max-h-0 overflow-hidden transition-all duration-300">
-                  <div class="p-5 sm:p-6 pt-0 text-gray-600 text-sm sm:text-base leading-relaxed">
-                    O preenchimento labial é um procedimento estético que utiliza ácido hialurônico para aumentar o volume dos lábios, melhorar o contorno e reduzir linhas finas ao redor da boca. O ácido hialurônico é uma substância naturalmente presente no corpo, o que torna o procedimento seguro e com baixo risco de rejeição.
-                  </div>
-                </div>
-              </div>
-
-              <!-- Pergunta 2 -->
-              <div class="faq-item bg-white elegant-border rounded-xl overflow-hidden">
-                <button class="faq-question w-full text-left p-5 sm:p-6 flex justify-between items-start gap-4 hover:bg-gray-50 transition" onclick="toggleFAQ(this)">
-                  <span class="text-base sm:text-lg font-semibold text-gray-800 pr-4">Quanto custa o preenchimento labial?</span>
-                  <svg class="faq-icon w-5 h-5 sm:w-6 sm:h-6 rose-gold flex-shrink-0 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
-                  </svg>
-                </button>
-                <div class="faq-answer max-h-0 overflow-hidden transition-all duration-300">
-                  <div class="p-5 sm:p-6 pt-0 text-gray-600 text-sm sm:text-base leading-relaxed">
-                    O valor do preenchimento labial varia conforme a quantidade de produto utilizado e o resultado desejado. O investimento geralmente fica a partir de R$ 1.200 por aplicação. O preço final é definido após avaliação individual na consulta.
-                  </div>
-                </div>
-              </div>
-
-              <!-- Pergunta 3 -->
-              <div class="faq-item bg-white elegant-border rounded-xl overflow-hidden">
-                <button class="faq-question w-full text-left p-5 sm:p-6 flex justify-between items-start gap-4 hover:bg-gray-50 transition" onclick="toggleFAQ(this)">
-                  <span class="text-base sm:text-lg font-semibold text-gray-800 pr-4">Quanto tempo dura o preenchimento labial?</span>
-                  <svg class="faq-icon w-5 h-5 sm:w-6 sm:h-6 rose-gold flex-shrink-0 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
-                  </svg>
-                </button>
-                <div class="faq-answer max-h-0 overflow-hidden transition-all duration-300">
-                  <div class="p-5 sm:p-6 pt-0 text-gray-600 text-sm sm:text-base leading-relaxed">
-                    O preenchimento com ácido hialurônico dura em média 8 a 12 meses, podendo variar conforme o metabolismo de cada pessoa e os cuidados pós-procedimento. Após esse período, o produto é naturalmente absorvido pelo organismo e uma nova aplicação pode ser feita se desejado.
-                  </div>
-                </div>
-              </div>
-
-              <!-- Pergunta 4 -->
-              <div class="faq-item bg-white elegant-border rounded-xl overflow-hidden">
-                <button class="faq-question w-full text-left p-5 sm:p-6 flex justify-between items-start gap-4 hover:bg-gray-50 transition" onclick="toggleFAQ(this)">
-                  <span class="text-base sm:text-lg font-semibold text-gray-800 pr-4">O resultado fica natural ou artificial?</span>
-                  <svg class="faq-icon w-5 h-5 sm:w-6 sm:h-6 rose-gold flex-shrink-0 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
-                  </svg>
-                </button>
-                <div class="faq-answer max-h-0 overflow-hidden transition-all duration-300">
-                  <div class="p-5 sm:p-6 pt-0 text-gray-600 text-sm sm:text-base leading-relaxed">
-                    O resultado depende da técnica utilizada e da quantidade de produto aplicado. Com uma aplicação adequada, é possível ter lábios naturalmente volumosos e bem desenhados. O ideal é buscar um resultado harmonioso com as proporções do rosto, evitando exageros.
-                  </div>
-                </div>
-              </div>
-
-              <!-- Pergunta 5 -->
-              <div class="faq-item bg-white elegant-border rounded-xl overflow-hidden">
-                <button class="faq-question w-full text-left p-5 sm:p-6 flex justify-between items-start gap-4 hover:bg-gray-50 transition" onclick="toggleFAQ(this)">
-                  <span class="text-base sm:text-lg font-semibold text-gray-800 pr-4">O lábio fica duro após o preenchimento?</span>
-                  <svg class="faq-icon w-5 h-5 sm:w-6 sm:h-6 rose-gold flex-shrink-0 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
-                  </svg>
-                </button>
-                <div class="faq-answer max-h-0 overflow-hidden transition-all duration-300">
-                  <div class="p-5 sm:p-6 pt-0 text-gray-600 text-sm sm:text-base leading-relaxed">
-                    Não. Quando o ácido hialurônico é bem aplicado, os lábios ficam macios e com movimento natural. Logo após o procedimento pode haver um leve inchaço que desaparece em poucos dias. O produto se integra aos tecidos proporcionando um resultado suave ao toque.
-                  </div>
-                </div>
-              </div>
-
-              <!-- Pergunta 6 -->
-              <div class="faq-item bg-white elegant-border rounded-xl overflow-hidden">
-                <button class="faq-question w-full text-left p-5 sm:p-6 flex justify-between items-start gap-4 hover:bg-gray-50 transition" onclick="toggleFAQ(this)">
-                  <span class="text-base sm:text-lg font-semibold text-gray-800 pr-4">Dói fazer preenchimento labial?</span>
-                  <svg class="faq-icon w-5 h-5 sm:w-6 sm:h-6 rose-gold flex-shrink-0 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
-                  </svg>
-                </button>
-                <div class="faq-answer max-h-0 overflow-hidden transition-all duration-300">
-                  <div class="p-5 sm:p-6 pt-0 text-gray-600 text-sm sm:text-base leading-relaxed">
-                    O procedimento pode causar algum desconforto, mas é tolerável. É aplicada anestesia tópica ou pomada anestésica antes da aplicação para minimizar o incômodo. Muitos ácidos hialurônicos já vêm com anestésico na fórmula. O procedimento dura cerca de 30 a 40 minutos.
-                  </div>
-                </div>
-              </div>
-
-              <!-- Pergunta 7 -->
-              <div class="faq-item bg-white elegant-border rounded-xl overflow-hidden">
-                <button class="faq-question w-full text-left p-5 sm:p-6 flex justify-between items-start gap-4 hover:bg-gray-50 transition" onclick="toggleFAQ(this)">
-                  <span class="text-base sm:text-lg font-semibold text-gray-800 pr-4">Quais os cuidados após o preenchimento labial?</span>
-                  <svg class="faq-icon w-5 h-5 sm:w-6 sm:h-6 rose-gold flex-shrink-0 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
-                  </svg>
-                </button>
-                <div class="faq-answer max-h-0 overflow-hidden transition-all duration-300">
-                  <div class="p-5 sm:p-6 pt-0 text-gray-600 text-sm sm:text-base leading-relaxed">
-                    Nas primeiras 24 a 48 horas, evite: exercícios físicos intensos, exposição ao sol e calor excessivo, bebidas alcoólicas e manipulação excessiva dos lábios. Pode ocorrer leve inchaço ou pequenos hematomas que desaparecem em poucos dias. Gelo pode ser aplicado para reduzir o inchaço.
-                  </div>
-                </div>
-              </div>
-
-              <!-- Pergunta 8 -->
-              <div class="faq-item bg-white elegant-border rounded-xl overflow-hidden">
-                <button class="faq-question w-full text-left p-5 sm:p-6 flex justify-between items-start gap-4 hover:bg-gray-50 transition" onclick="toggleFAQ(this)">
-                  <span class="text-base sm:text-lg font-semibold text-gray-800 pr-4">Posso reverter o preenchimento se não gostar?</span>
-                  <svg class="faq-icon w-5 h-5 sm:w-6 sm:h-6 rose-gold flex-shrink-0 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
-                  </svg>
-                </button>
-                <div class="faq-answer max-h-0 overflow-hidden transition-all duration-300">
-                  <div class="p-5 sm:p-6 pt-0 text-gray-600 text-sm sm:text-base leading-relaxed">
-                    Sim! Uma das vantagens do ácido hialurônico é que ele pode ser dissolvido com uma enzima chamada hialuronidase. Se por algum motivo você não ficar satisfeita com o resultado, é possível reverter total ou parcialmente o preenchimento de forma segura e rápida.
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- CTA Final -->
-          <div class="text-center mt-12 sm:mt-16 elegant-border rounded-2xl p-8 sm:p-10 bg-white">
-            <h3 class="text-2xl sm:text-3xl font-semibold text-gray-800 mb-4">
-              Ainda tem dúvidas?
-            </h3>
-            <p class="text-gray-600 mb-6 sm:mb-8 text-base sm:text-lg">
-              Estamos prontas para esclarecer todas as suas questões e ajudá-la a escolher o melhor tratamento.
-            </p>
-            <a
-              href="https://wa.me/5511976713350?text=Olá! Gostaria de tirar dúvidas sobre os procedimentos."
-              class="inline-block rose-gold-bg text-white px-8 sm:px-12 py-3 sm:py-4 rounded-full hover-rose transition text-base sm:text-lg"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Fale Conosco pelo WhatsApp
+            <a href="https://instagram.com/dra.tatimayumi" class="btn btn--outline" target="_blank" rel="noopener">
+              <span class="ig"></span>Instagram
             </a>
           </div>
         </div>
-      </div>
-    </section>
+      </section>
 
-    <!-- Contato -->
-    <section
-      id="contato"
-      class="pt-28 sm:pt-32 py-16 sm:py-20 md:py-24 bg-white text-center"
-    >
-      <div class="container mx-auto px-4 sm:px-6">
-        <div class="max-w-2xl mx-auto">
-          <div class="decorative-line mx-auto mb-4 sm:mb-6"></div>
-          <h2
-            class="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-gray-800 mb-4 sm:mb-6"
-          >
-            Entre em Contato
-          </h2>
-          <p class="text-gray-600 text-lg sm:text-xl mb-8 sm:mb-10">
-            Estamos prontas para te atender! Fale conosco diretamente pelo
-            WhatsApp para agendar sua consulta ou tirar suas dúvidas.
-          </p>
-
-          <!-- Endereço da Clínica -->
-          <div
-            class="mb-8 sm:mb-10 elegant-border rounded-2xl p-6 sm:p-8 soft-pink-bg max-w-xl mx-auto"
-          >
-            <div class="flex items-center justify-center mb-4">
-              <div
-                class="w-12 h-12 rounded-full rose-gold-bg bg-opacity-10 flex items-center justify-center"
-              >
-                <svg
-                  class="w-6 h-6 rose-gold"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
-                  ></path>
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
-                  ></path>
-                </svg>
-              </div>
-            </div>
-            <h3 class="text-xl sm:text-2xl font-semibold text-gray-800 mb-3">
-              Nosso Endereço
-            </h3>
-            <p class="text-gray-700 text-base sm:text-lg mb-4">
-              Rua Catiguá, 159 - Tatuapé<br />
-              São Paulo, SP - CEP 03065-030
-            </p>
-            <a
-              href="https://www.google.com/maps/search/?api=1&query=Rua+Catiguá,+159,+São+Paulo,+Brazil,+03065030"
-              class="inline-block text-rose-gold hover:underline text-sm sm:text-base"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Ver no Google Maps →
-            </a>
+      <!-- ===================== FAIXA DE CONFIANÇA ===================== -->
+      <div class="trust">
+        <div class="trust__inner">
+          <div>
+            <div class="trust__num">10+</div>
+            <div class="trust__label">Anos de prática</div>
           </div>
-
-          <!-- Formas de Pagamento -->
-          <div
-            class="mb-8 sm:mb-10 elegant-border rounded-2xl p-6 sm:p-8 soft-pink-bg max-w-xl mx-auto"
-          >
-            <div class="flex items-center justify-center mb-4">
-              <div
-                class="w-12 h-12 rounded-full rose-gold-bg bg-opacity-10 flex items-center justify-center"
-              >
-                <svg
-                  class="w-6 h-6 rose-gold"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"
-                  ></path>
-                </svg>
-              </div>
-            </div>
-            <h3 class="text-xl sm:text-2xl font-semibold text-gray-800 mb-3">
-              Formas de Pagamento
-            </h3>
-            <p class="text-gray-700 text-base sm:text-lg mb-6">
-              Aceitamos cartões de crédito e débito com parcelamento disponível
-            </p>
-            <div class="flex flex-wrap items-center justify-center gap-4 mb-4">
-              <img
-                src="assets/visa.svg"
-                alt="Visa - Aceitamos cartão Visa"
-                class="h-8 sm:h-10 w-auto"
-                width="62"
-                height="40"
-                loading="lazy"
-              />
-              <img
-                src="assets/mastercard.svg"
-                alt="Mastercard - Aceitamos cartão Mastercard"
-                class="h-8 sm:h-10 w-auto"
-                width="62"
-                height="40"
-                loading="lazy"
-              />
-            </div>
-            <p class="text-gray-600 text-sm sm:text-base">
-              <span class="rose-gold font-semibold"
-                >• Parcele seus procedimentos</span
-              ><br />
-              <span class="rose-gold font-semibold">• PIX aceito</span> para
-              pagamento à vista
-            </p>
+          <div class="trust__sep"></div>
+          <!-- TODO: confirmar nº real de atendimentos com a cliente -->
+          <div>
+            <div class="trust__num">+2k</div>
+            <div class="trust__label">Atendimentos</div>
           </div>
-
-          <a
-            href="https://wa.me/5511976713350?text=Olá! Gostaria de agendar um horário."
-            class="inline-block rose-gold-bg text-white px-8 sm:px-12 py-3 sm:py-4 rounded-full hover-rose transition text-base sm:text-lg"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Fale Conosco pelo WhatsApp
-          </a>
+          <div class="trust__sep"></div>
+          <div>
+            <div class="trust__num">100%</div>
+            <div class="trust__label">Personalizado</div>
+          </div>
         </div>
       </div>
-    </section>
 
-    <!-- Footer -->
-    <footer class="bg-white py-6 sm:py-8">
-      <div
-        class="container mx-auto px-4 sm:px-6 text-center text-gray-500 text-sm sm:text-base"
-      >
-        <p>&copy; 2025 Dra. Tati Mayumi. Todos os direitos reservados.</p>
+      <!-- ===================== ANTES & DEPOIS ===================== -->
+      <section id="antes-depois" class="section">
+        <div class="section__inner cmp__inner">
+          <div class="cmp__text">
+            <span class="eyebrow">Resultados reais</span>
+            <h2 class="serif">Antes <span style="color:var(--gold)">&amp;</span> Depois</h2>
+            <p class="lead">Arraste a divisória para revelar o resultado.</p>
+            <!-- Seletor de procedimento (só Lábios por enquanto; a aba Botox entra quando houver par antes/depois real) -->
+            <div class="cmp-pills">
+              <button type="button" class="cmp-pill" aria-pressed="true">Lábios</button>
+            </div>
+          </div>
+          <div class="cmp__media">
+            <div class="cmp-frame" data-cmp-frame>
+              <img src="assets/preenchimento-labial-antes.jpeg" alt="Antes do preenchimento labial - Dra. Tati Mayumi" />
+              <div class="cmp-after" data-cmp-after>
+                <img src="assets/preenchimento-labial-depois.jpeg" alt="Depois do preenchimento labial - Dra. Tati Mayumi" />
+              </div>
+              <span class="cmp-tag cmp-tag--before">ANTES</span>
+              <span class="cmp-tag cmp-tag--after">DEPOIS</span>
+              <div class="cmp-divider" data-cmp-divider>
+                <div class="cmp-handle"><span>‹ ›</span></div>
+              </div>
+            </div>
+            <p class="cmp-caption">Preenchimento Labial · resultado individual, pode variar</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===================== PROCEDIMENTOS ===================== -->
+      <section id="procedimentos" class="section--alt">
+        <div class="section__inner">
+          <div class="proc__head">
+            <span class="eyebrow">O que eu faço</span>
+            <h2 class="serif">Procedimentos</h2>
+          </div>
+          <div class="proc-list">
+            <article class="proc-card">
+              <div class="proc-card__media">
+                <img src="assets/portfolio/labial-01.jpeg" alt="Preenchimento labial com ácido hialurônico - Dra. Tati Mayumi" loading="lazy" />
+              </div>
+              <div class="proc-card__body">
+                <span class="proc-card__tag">Lábios</span>
+                <h3 class="serif">Preenchimento Labial</h3>
+                <p>Contorno e volume desenhados sob medida, realçando a forma natural dos seus lábios com leveza e simetria.</p>
+                <a href="#" class="text-link" data-wa-message="Olá! Gostaria de agendar uma avaliação de Preenchimento Labial." target="_blank" rel="noopener">Agendar avaliação <span>→</span></a>
+              </div>
+            </article>
+            <article class="proc-card">
+              <div class="proc-card__media">
+                <!-- TODO: foto dedicada de Botox (provisório: foto de procedimento) -->
+                <img src="assets/procedimento.jpeg" alt="Aplicação de toxina botulínica (Botox) - Dra. Tati Mayumi" loading="lazy" />
+              </div>
+              <div class="proc-card__body">
+                <span class="proc-card__tag">Botox</span>
+                <h3 class="serif">Toxina Botulínica</h3>
+                <p>Suaviza linhas de expressão e previne novas marcas, preservando a sua mímica e a naturalidade do olhar.</p>
+                <a href="#" class="text-link" data-wa-message="Olá! Gostaria de agendar uma avaliação de Toxina Botulínica (Botox)." target="_blank" rel="noopener">Agendar avaliação <span>→</span></a>
+              </div>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===================== SOBRE ===================== -->
+      <section id="sobre" class="section sobre">
+        <div class="section__inner sobre__inner">
+          <div class="sobre__portrait">
+            <!-- TODO: retrato no consultório (provisório) -->
+            <img src="assets/portfolio/injetando.jpeg" alt="Dra. Tati Mayumi realizando procedimento de estética facial no Tatuapé" loading="lazy" />
+          </div>
+          <div class="sobre__text">
+            <span class="eyebrow">Quem cuida de você</span>
+            <h2 class="serif">Dra. Tati Mayumi</h2>
+            <p>Dedico minha prática à estética facial com um olhar artístico e técnico. Cada plano de tratamento nasce de uma escuta atenta — porque o melhor resultado é aquele em que você continua sendo você, só que mais confiante.</p>
+            <div class="chips">
+              <span class="chip">Avaliação individualizada</span>
+              <span class="chip">Resultados naturais</span>
+              <span class="chip">10+ anos de prática</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===================== CONTATO ===================== -->
+      <section id="contato" class="contato">
+        <div class="section__inner contato__inner">
+          <div class="contato__text">
+            <span class="eyebrow">Vamos conversar</span>
+            <h2 class="serif">Agende a sua avaliação</h2>
+            <p class="lead">Respondo pessoalmente pelo WhatsApp. Tire suas dúvidas e encontre o melhor horário.</p>
+          </div>
+          <div class="contato__card">
+            <div class="contact-list">
+              <a href="#" class="contact-item" target="_blank" rel="noopener">
+                <span class="contact-item__icon">✆</span>
+                <span style="display:flex;flex-direction:column">
+                  <span class="contact-item__label">WhatsApp</span>
+                  <span class="contact-item__value">(11) 94557-5694</span>
+                </span>
+              </a>
+              <a href="https://instagram.com/dra.tatimayumi" class="contact-item" target="_blank" rel="noopener">
+                <span class="contact-item__icon"><span class="ig" style="color:var(--gold-light)"></span></span>
+                <span style="display:flex;flex-direction:column">
+                  <span class="contact-item__label">Instagram</span>
+                  <span class="contact-item__value" data-ig-label>@dra.tatimayumi</span>
+                </span>
+              </a>
+              <div class="contact-item" style="border-bottom:none">
+                <span class="contact-item__icon">◷</span>
+                <span style="display:flex;flex-direction:column">
+                  <span class="contact-item__label">Atendimento</span>
+                  <span class="contact-item__value">Seg–Sex · 9h às 18h</span>
+                </span>
+              </div>
+            </div>
+            <a href="#" class="btn btn--gold contato__btn" target="_blank" rel="noopener">
+              <span class="dot"></span>Falar no WhatsApp
+            </a>
+          </div>
+        </div>
+        <div class="contato__faq-wrap">
+          <a href="faq.html" class="contato__faq-link">Dúvidas frequentes e formas de pagamento →</a>
+        </div>
+      </section>
+
+      <!-- ===================== FOOTER ===================== -->
+      <footer class="footer">
+        <div class="footer__inner">
+          <div class="footer__brand">
+            <div class="footer__name serif">Dra. Tati Mayumi</div>
+            <div class="footer__sub">Estética Avançada · Tatuapé, SP</div>
+          </div>
+          <div class="footer__copy">© 2026 · Todos os direitos reservados</div>
+        </div>
+      </footer>
+
+      <!-- ===================== BARRA FIXA DE CTA (mobile) ===================== -->
+      <div class="cta-bar">
+        <a href="#" class="btn cta-bar__wa" target="_blank" rel="noopener">
+          <span class="dot"></span>Agendar pelo WhatsApp
+        </a>
+        <a href="https://instagram.com/dra.tatimayumi" class="cta-bar__ig" target="_blank" rel="noopener" aria-label="Instagram">
+          <span class="ig ig--lg" style="color:var(--gold-light)"></span>
+        </a>
       </div>
-    </footer>
 
-    <!-- WhatsApp Button -->
-    <a
-      href="https://wa.me/5511976713350?text=Olá! Gostaria de agendar um horário."
-      id="whatsapp-button"
-      target="_blank"
-      rel="noopener noreferrer"
-    >
-      <img
-        src="https://framerusercontent.com/images/I5JycHzDls9fs2r5fGWTaliP6Q.png?width=512&height=512"
-        alt="WhatsApp - Entre em contato com Dra. Tati Mayumi"
-        class="w-8 h-8"
-        width="32"
-        height="32"
-        loading="lazy"
-      />
-    </a>
+      <!-- ===================== BOTÃO FLUTUANTE (desktop) ===================== -->
+      <a href="#" class="fab" target="_blank" rel="noopener" aria-label="Falar no WhatsApp">✆</a>
+    </div>
 
-    <!-- Dados Estruturados Schema.org para SEO -->
+    <!-- ===================== JSON-LD: MedicalBusiness ===================== -->
     <script type="application/ld+json">
     {
       "@context": "https://schema.org",
@@ -1132,193 +627,85 @@
         }
       ],
       "url": "https://dratatimayumi.com.br",
-      "paymentAccepted": ["Cash", "Credit Card", "Debit Card"]
+      "paymentAccepted": ["Cash", "Credit Card", "Debit Card", "PIX"]
     }
     </script>
 
-    <!-- Schema.org FAQPage para SEO -->
-    <script type="application/ld+json">
-    {
-      "@context": "https://schema.org",
-      "@type": "FAQPage",
-      "mainEntity": [
-        {
-          "@type": "Question",
-          "name": "O que é Botox e para que serve?",
-          "acceptedAnswer": {
-            "@type": "Answer",
-            "text": "O Botox (toxina botulínica) é um tratamento estético que relaxa temporariamente os músculos faciais, suavizando rugas e linhas de expressão. É especialmente eficaz para tratar rugas na testa, entre as sobrancelhas (glabela), ao redor dos olhos (pés de galinha) e para sorriso gengival."
-          }
-        },
-        {
-          "@type": "Question",
-          "name": "Quanto custa o tratamento com Botox?",
-          "acceptedAnswer": {
-            "@type": "Answer",
-            "text": "O valor do Botox varia conforme a área tratada e a quantidade de unidades necessárias. Em média, o investimento fica entre R$ 800 e R$ 2.500 por sessão. Durante a consulta, é feita uma avaliação personalizada para determinar o valor exato do seu tratamento."
-          }
-        },
-        {
-          "@type": "Question",
-          "name": "Quanto tempo dura o efeito do Botox?",
-          "acceptedAnswer": {
-            "@type": "Answer",
-            "text": "O efeito do Botox dura em média 4 a 6 meses. Após esse período, o movimento muscular retorna gradualmente e uma nova aplicação pode ser necessária para manter os resultados. Com aplicações regulares, muitos pacientes relatam que o efeito pode durar um pouco mais."
-          }
-        },
-        {
-          "@type": "Question",
-          "name": "A aplicação de Botox dói?",
-          "acceptedAnswer": {
-            "@type": "Answer",
-            "text": "A aplicação é feita com agulhas muito finas e o desconforto é mínimo, descrito pela maioria dos pacientes como uma leve picada ou pressão. O procedimento dura cerca de 10 a 20 minutos e não requer anestesia. Se necessário, pode ser aplicado um creme anestésico antes do procedimento."
-          }
-        },
-        {
-          "@type": "Question",
-          "name": "Quando vejo os resultados do Botox?",
-          "acceptedAnswer": {
-            "@type": "Answer",
-            "text": "Os primeiros resultados aparecem entre 3 a 5 dias após a aplicação, mas o efeito completo é visível em 14 dias. É importante não deitar ou fazer exercícios físicos intensos nas primeiras 4 horas após o procedimento."
-          }
-        },
-        {
-          "@type": "Question",
-          "name": "Quais são as contraindicações do Botox?",
-          "acceptedAnswer": {
-            "@type": "Answer",
-            "text": "O Botox é contraindicado para gestantes, lactantes, pessoas com doenças neuromusculares (como miastenia gravis) e alergia a algum componente da fórmula. Durante a consulta, é feita uma avaliação completa do seu histórico de saúde para garantir a segurança do procedimento."
-          }
-        },
-        {
-          "@type": "Question",
-          "name": "Botox deixa o rosto congelado ou artificial?",
-          "acceptedAnswer": {
-            "@type": "Answer",
-            "text": "Quando aplicado corretamente por um profissional qualificado, o Botox proporciona resultados naturais. O objetivo é suavizar as linhas de expressão mantendo a capacidade de expressão facial. O aspecto congelado geralmente ocorre quando há excesso na aplicação."
-          }
-        },
-        {
-          "@type": "Question",
-          "name": "O que é preenchimento labial e como funciona?",
-          "acceptedAnswer": {
-            "@type": "Answer",
-            "text": "O preenchimento labial é um procedimento estético que utiliza ácido hialurônico para aumentar o volume dos lábios, melhorar o contorno e reduzir linhas finas ao redor da boca. O ácido hialurônico é uma substância naturalmente presente no corpo, o que torna o procedimento seguro e com baixo risco de rejeição."
-          }
-        },
-        {
-          "@type": "Question",
-          "name": "Quanto custa o preenchimento labial?",
-          "acceptedAnswer": {
-            "@type": "Answer",
-            "text": "O valor do preenchimento labial varia conforme a quantidade de produto utilizado e o resultado desejado. O investimento geralmente fica entre R$ 1.500 e R$ 3.500 por aplicação. O preço final é definido após avaliação individual na consulta."
-          }
-        },
-        {
-          "@type": "Question",
-          "name": "Quanto tempo dura o preenchimento labial?",
-          "acceptedAnswer": {
-            "@type": "Answer",
-            "text": "O preenchimento com ácido hialurônico dura em média 8 a 12 meses, podendo variar conforme o metabolismo de cada pessoa e os cuidados pós-procedimento. Após esse período, o produto é naturalmente absorvido pelo organismo e uma nova aplicação pode ser feita se desejado."
-          }
-        },
-        {
-          "@type": "Question",
-          "name": "O resultado do preenchimento labial fica natural ou artificial?",
-          "acceptedAnswer": {
-            "@type": "Answer",
-            "text": "O resultado depende da técnica utilizada e da quantidade de produto aplicado. Com uma aplicação adequada, é possível ter lábios naturalmente volumosos e bem desenhados. O ideal é buscar um resultado harmonioso com as proporções do rosto, evitando exageros."
-          }
-        },
-        {
-          "@type": "Question",
-          "name": "O lábio fica duro após o preenchimento?",
-          "acceptedAnswer": {
-            "@type": "Answer",
-            "text": "Não. Quando o ácido hialurônico é bem aplicado, os lábios ficam macios e com movimento natural. Logo após o procedimento pode haver um leve inchaço que desaparece em poucos dias. O produto se integra aos tecidos proporcionando um resultado suave ao toque."
-          }
-        },
-        {
-          "@type": "Question",
-          "name": "Dói fazer preenchimento labial?",
-          "acceptedAnswer": {
-            "@type": "Answer",
-            "text": "O procedimento pode causar algum desconforto, mas é tolerável. É aplicada anestesia tópica ou pomada anestésica antes da aplicação para minimizar o incômodo. Muitos ácidos hialurônicos já vêm com anestésico na fórmula. O procedimento dura cerca de 30 a 40 minutos."
-          }
-        },
-        {
-          "@type": "Question",
-          "name": "Quais os cuidados após o preenchimento labial?",
-          "acceptedAnswer": {
-            "@type": "Answer",
-            "text": "Nas primeiras 24 a 48 horas, evite: exercícios físicos intensos, exposição ao sol e calor excessivo, bebidas alcoólicas e manipulação excessiva dos lábios. Pode ocorrer leve inchaço ou pequenos hematomas que desaparecem em poucos dias. Gelo pode ser aplicado para reduzir o inchaço."
-          }
-        },
-        {
-          "@type": "Question",
-          "name": "Posso reverter o preenchimento labial se não gostar?",
-          "acceptedAnswer": {
-            "@type": "Answer",
-            "text": "Sim! Uma das vantagens do ácido hialurônico é que ele pode ser dissolvido com uma enzima chamada hialuronidase. Se por algum motivo você não ficar satisfeita com o resultado, é possível reverter total ou parcialmente o preenchimento de forma segura e rápida."
-          }
-        }
-      ]
-    }
-    </script>
-
+    <!-- ===================== Scripts ===================== -->
     <script>
-      // Configuração centralizada do WhatsApp
+      // Configuração centralizada do WhatsApp — alterar SOMENTE aqui.
       const WHATSAPP_CONFIG = {
         number: "5511945575694",
-        defaultMessage: "Olá! Gostaria de agendar um horário.",
+        defaultMessage: "Olá! Gostaria de agendar uma avaliação.",
       };
 
-      // Gera o link do WhatsApp
-      function getWhatsAppLink(message = WHATSAPP_CONFIG.defaultMessage) {
-        return `https://wa.me/${WHATSAPP_CONFIG.number}?text=${encodeURIComponent(message)}`;
+      // Configuração centralizada do Instagram — alterar SOMENTE aqui.
+      const INSTAGRAM_CONFIG = {
+        handle: "dra.tatimayumi",
+      };
+
+      // Gera o link do WhatsApp a partir da config (mensagem opcional).
+      function getWhatsAppLink(message) {
+        const text = encodeURIComponent(message || WHATSAPP_CONFIG.defaultMessage);
+        return `https://wa.me/${WHATSAPP_CONFIG.number}?text=${text}`;
       }
 
-      // Atualiza todos os links de WhatsApp na página
+      // Atualiza todos os links de WhatsApp da página. Os botões usam href="#" como
+      // placeholder; cada link pode definir uma mensagem própria via data-wa-message.
       function updateWhatsAppLinks() {
-        const whatsappLinks = document.querySelectorAll('a[href*="wa.me"]');
-        whatsappLinks.forEach((link) => {
-          link.href = getWhatsAppLink();
+        document.querySelectorAll('a[href="#"], a[href*="wa.me"]').forEach((a) => {
+          const custom = a.getAttribute("data-wa-message");
+          a.href = getWhatsAppLink(custom);
         });
       }
 
-      // Função do menu mobile
-      function toggleMenu() {
-        const menu = document.getElementById("mobileMenu");
-        menu.classList.toggle("hidden");
+      // Atualiza todos os links/labels de Instagram a partir da config.
+      function updateInstagramLinks() {
+        const url = `https://instagram.com/${INSTAGRAM_CONFIG.handle}`;
+        document.querySelectorAll('a[href*="instagram.com"]').forEach((a) => {
+          a.href = url;
+        });
+        document.querySelectorAll("[data-ig-label]").forEach((el) => {
+          el.textContent = "@" + INSTAGRAM_CONFIG.handle;
+        });
       }
 
-      // Função para controlar accordion do FAQ
-      function toggleFAQ(button) {
-        const faqItem = button.closest('.faq-item');
-        const answer = faqItem.querySelector('.faq-answer');
-        const icon = button.querySelector('.faq-icon');
-        const isOpen = answer.style.maxHeight && answer.style.maxHeight !== '0px';
+      // Comparador Antes & Depois — divisória arrastável (mouse + toque via Pointer Events).
+      function initComparator() {
+        const frame = document.querySelector("[data-cmp-frame]");
+        if (!frame) return;
+        const after = frame.querySelector("[data-cmp-after]");
+        const divider = frame.querySelector("[data-cmp-divider]");
+        let pos = 50;
+        let dragging = false;
 
-        // Fecha todos os outros FAQs (opcional - remove para permitir múltiplos abertos)
-        // document.querySelectorAll('.faq-answer').forEach(item => {
-        //   if (item !== answer) {
-        //     item.style.maxHeight = '0';
-        //     item.closest('.faq-item').querySelector('.faq-icon').style.transform = 'rotate(0deg)';
-        //   }
-        // });
+        const apply = () => {
+          after.style.clipPath = `inset(0 0 0 ${pos}%)`;
+          divider.style.left = pos + "%";
+        };
+        const move = (e) => {
+          const r = frame.getBoundingClientRect();
+          const p = ((e.clientX - r.left) / r.width) * 100;
+          pos = Math.max(2, Math.min(98, p));
+          apply();
+        };
 
-        // Toggle do FAQ atual
-        if (isOpen) {
-          answer.style.maxHeight = '0';
-          icon.style.transform = 'rotate(0deg)';
-        } else {
-          answer.style.maxHeight = answer.scrollHeight + 'px';
-          icon.style.transform = 'rotate(180deg)';
-        }
+        frame.addEventListener("pointerdown", (e) => {
+          dragging = true;
+          try { frame.setPointerCapture(e.pointerId); } catch (_) {}
+          move(e);
+        });
+        frame.addEventListener("pointermove", (e) => { if (dragging) move(e); });
+        frame.addEventListener("pointerup", () => { dragging = false; });
+        frame.addEventListener("pointercancel", () => { dragging = false; });
+        apply();
       }
 
-      // Inicializa quando a página carregar
-      document.addEventListener("DOMContentLoaded", updateWhatsAppLinks);
+      document.addEventListener("DOMContentLoaded", () => {
+        updateWhatsAppLinks();
+        updateInstagramLinks();
+        initComparator();
+      });
     </script>
   </body>
 </html>
