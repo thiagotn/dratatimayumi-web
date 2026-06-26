@@ -93,25 +93,34 @@ O site é **conteinerizado** (nginx servindo os arquivos estáticos) e publicado
 > gatilho automático foi desativado (só execução manual) e será removido após o decomissionamento
 > da Hostinger. O fluxo atual é o de container + k3s descrito abaixo.
 
-### Fluxo atual (container + GHCR + k3s)
+### Fluxo atual (GitOps: container + GHCR + Argo CD)
 
-1. **Build da imagem (CI):** a cada push em `main`, o workflow `.github/workflows/build-image.yml`
-   builda e publica a imagem no GHCR — `ghcr.io/thiagotn/dratatimayumi-web` (package público),
-   tags `sha-<git-sha>` + `latest`.
-2. **Rollout (manual, da máquina local):** o runner de nuvem **não alcança o cluster privado**,
-   então o rollout é disparado de fora. No repo `../homelab`:
-   ```bash
-   ansible-playbook ansible/playbooks/deploy-app.yml -e app=dratatimayumi          # última versão de main
-   ansible-playbook ansible/playbooks/deploy-app.yml -e app=dratatimayumi -e image_tag=sha-<sha>   # versão fixa / rollback
-   ```
-   Fallback on-node (via SSH): `./scripts/deploy-dratatimayumi.sh sha-<git-sha>`.
+Deploy é **automático por `git push`** — não há mais passo manual no fluxo normal. A cada push em
+`main`, o workflow `.github/workflows/build-image.yml` roda dois jobs:
+
+1. **`build-push`:** builda e publica a imagem no GHCR — `ghcr.io/thiagotn/dratatimayumi-web`
+   (package público), tags `sha-<git-sha>` + `latest`.
+2. **`bump-homelab-tag`:** faz checkout do repo `homelab` (privado, via deploy key SSH em
+   `secrets.HOMELAB_DEPLOY_KEY`) e atualiza a tag da imagem no `kustomization.yaml` do homelab,
+   com `git push`. O **Argo CD** no cluster detecta o commit e faz o rollout sozinho.
+
+   > O cluster é **read-only** para o CI (não recebe `kubectl`/SSH daqui); o que entra é só um
+   > commit no repo de infra. A credencial de escrita vive nos *secrets* do GitHub Actions, não no cluster.
+
+**Acompanhar / rollback** (no repo `../homelab`, na LAN): `kubectl -n argocd get app dratatimayumi`
+(quer `Synced`/`Healthy`). Rollback = apontar o `newTag` para um sha anterior e `git push`.
+
+**Fallback manual** (Argo indisponível): `ansible-playbook ansible/playbooks/deploy-app.yml -e app=dratatimayumi`
+no `../homelab`, ou on-node `./scripts/deploy-dratatimayumi.sh sha-<git-sha>`. ⚠️ Com o `selfHeal`
+do Argo ligado, um rollout manual é revertido se a tag não estiver no `kustomization.yaml`.
 
 ### Arquivos da conteinerização (neste repo)
 
 -   **`Dockerfile`** — `nginx:stable-alpine`, non-root (uid 101), porta 8080, `/healthz`.
 -   **`nginx.conf`** — gzip, cache (`expires`), headers de segurança e redirect `.com → .com.br`.
 -   **`.dockerignore`** — exclui assets não usados e cruft do repo.
--   **`.github/workflows/build-image.yml`** — build + push da imagem no GHCR.
+-   **`.github/workflows/build-image.yml`** — build + push da imagem no GHCR **e** write-back da tag
+    no repo `homelab` (GitOps via Argo CD).
 
 Os manifests k8s (`deployment.yml`, `service.yml`, `ingress.yml`, `ingress-com.yml`) ficam no repo
 `../homelab` em `helm/apps/dratatimayumi/`. Detalhes completos: `.claude/CLAUDE.md` (seção Deploy)

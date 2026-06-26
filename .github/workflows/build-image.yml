@@ -48,3 +48,33 @@ jobs:
           labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
+
+  # GitOps: após publicar a imagem, atualiza a tag no repo homelab (privado) e dá push.
+  # O Argo CD detecta o commit e faz o rollout — o cluster NÃO recebe nada deste CI (read-only).
+  # Credencial: deploy key de ESCRITA do homelab, em secrets.HOMELAB_DEPLOY_KEY (escopada ao repo).
+  bump-homelab-tag:
+    needs: build-push
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout homelab (deploy key SSH)
+        uses: actions/checkout@v4
+        with:
+          repository: thiagotn/homelab
+          ssh-key: ${{ secrets.HOMELAB_DEPLOY_KEY }}
+          path: homelab
+
+      - name: Atualizar newTag no kustomization e dar push
+        working-directory: homelab
+        run: |
+          set -euo pipefail
+          TAG="sha-${GITHUB_SHA}"
+          yq -i ".images[0].newTag = \"${TAG}\"" helm/apps/dratatimayumi/kustomization.yaml
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add helm/apps/dratatimayumi/kustomization.yaml
+          if git diff --cached --quiet; then
+            echo "Tag já é ${TAG}; nada a commitar."
+          else
+            git commit -m "deploy(dratatimayumi): ${TAG} [skip ci]"
+            git push
+          fi

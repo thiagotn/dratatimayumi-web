@@ -203,8 +203,10 @@ O site é conteinerizado (nginx servindo os arquivos estáticos) e publicado no 
   - ⚠️ Headers de segurança ficam no nível do `server`. **Não** adicionar `add_header` dentro de
     um `location` (cancela a herança dos headers do server) — para cache use a diretiva `expires`.
 - `.dockerignore` — exclui ~8MB de logos não usados e cruft do repo (não excluir `nginx.conf`).
-- `.github/workflows/build-image.yml` — builda e publica a imagem no GHCR
-  (`ghcr.io/<owner>/dratatimayumi-web`, tags `sha-<git-sha>` + `latest`) a cada push em `main`.
+- `.github/workflows/build-image.yml` — a cada push em `main`: job `build-push` builda e publica a
+  imagem no GHCR (`ghcr.io/<owner>/dratatimayumi-web`, tags `sha-<git-sha>` + `latest`); job
+  `bump-homelab-tag` faz write-back da nova tag no `kustomization.yaml` do repo `homelab`
+  (deploy key SSH de escrita em `secrets.HOMELAB_DEPLOY_KEY`), disparando o GitOps do Argo CD.
 
 **Resources k8s** (ficam no repo `../homelab`, em `helm/apps/dratatimayumi/`):
 `deployment.yml`, `service.yml` (`dratatimayumi-service:80` → container `:8080`), `ingress.yml`
@@ -214,17 +216,23 @@ O site é conteinerizado (nginx servindo os arquivos estáticos) e publicado no 
 favonia (`DOMAINS="dratatimayumi.com.br,dratatimayumi.com"`). O `.com` (+ `www`) faz 301 → `.com.br`
 pelo nginx. Na zona `.com`, o `AAAA` legado foi removido e o `CNAME www` aponta para a raiz.
 
-**Processo (rollout disparado da máquina local — o runner de nuvem não alcança o cluster privado):**
+**Processo (GitOps — automático por `git push`, sem passo manual):**
 ```
-Push → GitHub Actions → build → push GHCR (sha + latest)
-       → (máquina local) ansible-playbook deploy-app.yml -e app=dratatimayumi → rollout
+Push em main → GitHub Actions → build → push GHCR (sha + latest)
+            → write-back da tag no kustomization.yaml do repo homelab (git push)
+            → Argo CD detecta o commit → rollout no cluster
 ```
-- **Recomendado:** no repo `../homelab`, `ansible-playbook ansible/playbooks/deploy-app.yml -e app=dratatimayumi`
-  (resolve o SHA do HEAD de `main`, espera a imagem no GHCR, faz `set image` + `rollout` + `/healthz`).
-  Fixar versão/rollback: `-e image_tag=sha-<sha>`.
-- **Fallback on-node:** `./scripts/deploy-dratatimayumi.sh sha-<sha>` (via SSH no node).
+O cluster é **read-only** para o CI: o runner não alcança a API privada do k8s; ele só commita no
+repo de infra, e o Argo CD (dentro do cluster) reconcilia. A credencial de escrita fica nos
+*secrets* do Actions, não no cluster.
 
-Detalhes e checklist completo: ver o plano em `~/.claude/plans/` e o `README.md` de `../homelab`.
+- **Acompanhar/rollback** (no `../homelab`, na LAN): `kubectl -n argocd get app dratatimayumi`
+  (quer `Synced`/`Healthy`). Rollback = apontar o `newTag` para um sha anterior e `git push`.
+- **Fallback (Argo fora):** `ansible-playbook ansible/playbooks/deploy-app.yml -e app=dratatimayumi`
+  (`-e image_tag=sha-<sha>` p/ versão fixa), ou on-node `./scripts/deploy-dratatimayumi.sh sha-<sha>`.
+  ⚠️ Com `selfHeal` ligado, um rollout manual é revertido se a tag não entrar no `kustomization.yaml`.
+
+Detalhes completos: `helm/argocd/README.md` e o `README.md` de `../homelab`.
 
 > ⚠️ **Domínio nos arquivos de SEO:** `index.html` (og/twitter/canonical/JSON-LD), `robots.txt` e
 > `sitemap.xml` usam **dratatimayumi.com.br** (canônico). Manter consistente ao editar.
