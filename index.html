@@ -166,7 +166,9 @@
       .hero p { font-weight: 300; font-size: 15px; line-height: 1.6; color: #e9e1d4; margin: 0 0 22px; max-width: 330px; }
       .hero .eyebrow { color: var(--gold-light); letter-spacing: .3em; }
       .hero__cta { display: flex; gap: 10px; flex-wrap: wrap; }
-      .hero__cta .btn--gold { font-size: 14px; padding: 13px 22px; }
+      /* No mobile o "Agendar pelo WhatsApp" do hero é ocultado (a barra fixa já cobre o CTA);
+         volta a aparecer no desktop, onde não há barra fixa. Ver @media. */
+      .hero__cta .btn--gold { display: none; font-size: 14px; padding: 13px 22px; }
       .hero__cta .btn--outline { font-size: 14px; padding: 13px 18px; }
 
       /* Trust strip */
@@ -272,7 +274,6 @@
         .nav { flex-basis: auto; margin-left: auto; gap: 34px; overflow: visible; padding: 0; align-items: center; }
         .nav a:not(.header-cta) { border: none; background: none; padding: 0; font-size: 12px; letter-spacing: .1em; }
         .nav a:not(.header-cta):hover { color: var(--gold-deep); }
-        .header-cta--top { display: none; }
         .header-cta--inline { display: inline-flex; }
         .header-cta { font-size: 13px; padding: 11px 22px; }
         .header-cta:hover { background: #b58f45; }
@@ -288,7 +289,7 @@
         .hero h1 em { color: var(--gold-deep); }
         .hero p { font-size: 17px; line-height: 1.65; color: var(--text-muted); max-width: 430px; margin: 0 0 30px; }
         .hero__cta { gap: 14px; }
-        .hero__cta .btn--gold { font-size: 15px; padding: 15px 28px; }
+        .hero__cta .btn--gold { display: inline-flex; font-size: 15px; padding: 15px 28px; }
         .hero__cta .btn--gold:hover { background: #b58f45; }
         .hero__cta .btn--outline { font-size: 15px; padding: 15px 24px; border-color: rgba(42,37,31,.25); color: var(--ink); }
         .hero__cta .btn--outline:hover { border-color: var(--gold); color: var(--gold-deep); }
@@ -376,7 +377,6 @@
             <span class="brand__name serif">Dra. Tati Mayumi</span>
             <span class="brand__sub">Estética Avançada</span>
           </a>
-          <a href="#" class="header-cta header-cta--top" target="_blank" rel="noopener">Agendar</a>
           <nav class="nav">
             <a href="#inicio">Início</a>
             <a href="#antes-depois">Antes &amp; Depois</a>
