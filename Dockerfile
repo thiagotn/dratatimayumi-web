@@ -5,7 +5,7 @@ FROM nginx:stable-alpine
 COPY nginx.conf /etc/nginx/nginx.conf
 
 # Site estático. O .dockerignore exclui ~8MB de logos não usados e cruft do repo.
-COPY --chown=nginx:nginx index.html favicon.ico robots.txt sitemap.xml /usr/share/nginx/html/
+COPY --chown=nginx:nginx index.html faq.html favicon.ico robots.txt sitemap.xml /usr/share/nginx/html/
 COPY --chown=nginx:nginx js/     /usr/share/nginx/html/js/
 COPY --chown=nginx:nginx assets/ /usr/share/nginx/html/assets/
 
