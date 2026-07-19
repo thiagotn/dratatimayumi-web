@@ -148,7 +148,7 @@ quase-preto como tinta. Evitar voltar ao rosa antigo.
 2. **Hero** (`#inicio`) — retrato full-bleed + overlay + H1 "Harmonia que respeita a sua *essência*" + botões WhatsApp e Instagram. *(imagem do hero é provisória — TODO: retrato real da Dra.)*
 3. **Faixa de confiança** — 3 métricas: "10+ Anos de prática", "+2k Atendimentos" *(TODO: confirmar número real)*, "100% Personalizado".
 4. **Antes & Depois** (`#antes-depois`) — **comparador arrastável** (peça central). Hoje só **Lábios** (par `assets/preenchimento-labial-{antes,depois}.jpeg`). A pill **Botox** está oculta até existir um par antes/depois real e alinhado.
-5. **Procedimentos** (`#procedimentos`) — 4 cards: Preenchimento Labial, Toxina Botulínica (Botox), Bioestimulador de Colágeno Facial e Bioestimulador de Colágeno Glúteo (grid 2×2 no desktop), cada um com link "Agendar avaliação →". *(Botox e os 2 bioestimuladores usam `assets/procedimento.jpeg` provisório — TODO: fotos dedicadas.)*
+5. **Procedimentos** (`#procedimentos`) — 4 cards: Preenchimento Labial, Toxina Botulínica (Botox), Bioestimulador de Colágeno Facial e Bioestimulador de Colágeno Glúteo (grid 2×2 no desktop), cada um com link "Agendar avaliação →". *(Facial usa `assets/portfolio/bioestimulador-facial.jpeg`; Botox e o Glúteo usam `assets/procedimento.jpeg` provisório — TODO: fotos dedicadas.)*
 6. **Sobre** (`#sobre`) — retrato + bio + chips. *(sem CRM — a profissional não tem registro de conselho no material atual; se houver, re-adicionar.)*
 7. **Contato** (`#contato`) — itens WhatsApp `(11) 94557-5694`, Instagram `@dra.tatimayumi`, Atendimento `Seg–Sex 9h–18h`; botão "Falar no WhatsApp" + link para `faq.html`.
 8. **Footer** + **barra fixa de CTA** (WhatsApp + Instagram), respeitando `env(safe-area-inset-bottom)`.
