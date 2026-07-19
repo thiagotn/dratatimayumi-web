@@ -146,7 +146,7 @@ quase-preto como tinta. Evitar voltar ao rosa antigo.
 ### `index.html`
 1. **Header sticky** — logo "Dra. Tati Mayumi" + sub "Estética Avançada", pill "Agendar" (WhatsApp), nav de pills (`#inicio · #antes-depois · #procedimentos · #sobre · #contato · Dúvidas→faq.html`).
 2. **Hero** (`#inicio`) — retrato full-bleed + overlay + H1 "Harmonia que respeita a sua *essência*" + botões WhatsApp e Instagram. *(imagem do hero é provisória — TODO: retrato real da Dra.)*
-3. **Faixa de confiança** — 3 métricas: "10+ Anos de prática", "+2k Atendimentos" *(TODO: confirmar número real)*, "100% Personalizado".
+3. **Faixa de confiança** — 3 métricas: "10+ Anos na área da saúde", "1ª Consulta é avaliação", "100% Personalizado". *(A Dra. tem 10+ anos na saúde em geral, não nos procedimentos estéticos — não usar "anos de prática/experiência" sem esse contexto, nem números de atendimentos não confirmados.)*
 4. **Antes & Depois** (`#antes-depois`) — **comparador arrastável** (peça central). Hoje só **Lábios** (par `assets/preenchimento-labial-{antes,depois}.jpeg`). A pill **Botox** está oculta até existir um par antes/depois real e alinhado.
 5. **Procedimentos** (`#procedimentos`) — 4 cards: Preenchimento Labial, Toxina Botulínica (Botox), Bioestimulador de Colágeno Facial e Bioestimulador de Colágeno Glúteo (grid 2×2 no desktop), cada um com link "Agendar avaliação →". *(Facial usa `assets/portfolio/bioestimulador-facial.jpeg`; Botox e o Glúteo usam `assets/procedimento.jpeg` provisório — TODO: fotos dedicadas.)*
 6. **Sobre** (`#sobre`) — retrato + bio + chips. *(sem CRM — a profissional não tem registro de conselho no material atual; se houver, re-adicionar.)*

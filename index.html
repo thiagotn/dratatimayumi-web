@@ -174,6 +174,7 @@
       /* Trust strip */
       .trust { background: var(--ink); color: #f0e7d8; }
       .trust__inner { display: flex; justify-content: space-around; text-align: center; padding: 22px 16px; }
+      .trust__inner > div:not(.trust__sep) { flex: 1 1 0; min-width: 0; padding: 0 6px; }
       .trust__num { font-family: 'Cormorant Garamond', serif; font-size: 26px; font-weight: 600; color: var(--gold-light); }
       .trust__label { font-size: 10px; letter-spacing: .14em; text-transform: uppercase; color: #b3a690; margin-top: 2px; }
       .trust__sep { width: 1px; background: rgba(240, 231, 216, .16); }
@@ -417,13 +418,12 @@
         <div class="trust__inner">
           <div>
             <div class="trust__num">10+</div>
-            <div class="trust__label">Anos de prática</div>
+            <div class="trust__label">Anos na área da saúde</div>
           </div>
           <div class="trust__sep"></div>
-          <!-- TODO: confirmar nº real de atendimentos com a cliente -->
           <div>
-            <div class="trust__num">+2k</div>
-            <div class="trust__label">Atendimentos</div>
+            <div class="trust__num">1ª</div>
+            <div class="trust__label">Consulta é avaliação</div>
           </div>
           <div class="trust__sep"></div>
           <div>
